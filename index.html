@@ -23,9 +23,32 @@
   <title>Gen｜2027 S/S コレクション “Still Identity” ファッションショー</title>
   <meta name="description" content="ファッションレーベル Gen による 2027 S/S コレクション “Still Identity”。2027年3月20日、東京でのランウェイショーを開催。コレクション、制作背景、チケット予約のご案内。">
 
+  <!-- ====================================================================
+       検索エンジンに載せない指定（noindex）
+       ----------------------------------------------------------------------
+       【なぜこれを入れているか】
+       GitHub Pages の公開リポジトリは、URLを知っていれば誰でも見られます。
+       アクセス制限付きの Pages は GitHub Enterprise Cloud の機能で、
+       無料・Pro プランでは使えません。
+       そこで「鍵はかけられないが、検索から辿り着けないようにする」ための指定です。
+
+       noindex  … 検索結果に載せない
+       nofollow … このページ内のリンクを辿らせない
+
+       【robots.txt を置いていない理由】
+       robots.txt はドメインの直下（sahomatsu.github.io/robots.txt）しか読まれません。
+       このサイトはその下の階層に置かれるプロジェクトページなので、
+       リポジトリ内に robots.txt を置いても無視されます。
+       階層の深さに関係なく効くこの meta タグが、唯一の有効な手段です。
+
+       【本公開するときは】
+       この1行を削除してください。消し忘れると、本番でも検索に出ません。
+       ==================================================================== -->
+  <meta name="robots" content="noindex, nofollow">
+
   <!-- 正規URL。同じ内容が複数URLで見えるときに「こちらが正」と伝える指定。
-       公開時は実際のドメインに書き換えてください。 -->
-  <link rel="canonical" href="https://example.com/">
+       独自ドメインに移すときは、ここと og:url の2か所を書き換えてください。 -->
+  <link rel="canonical" href="https://sahomatsu.github.io/gen-test20261009.github.io/">
 
   <!-- ブラウザのUI色（モバイルのアドレスバー）。
        サイトの基調色に合わせて、画面上端で色が途切れないようにする。 -->
@@ -40,8 +63,8 @@
   <meta property="og:site_name" content="Gen">
   <meta property="og:title" content="Gen｜2027 S/S コレクション “Still Identity”">
   <meta property="og:description" content="2027年3月20日、東京。ファッションレーベル Gen によるランウェイショー “Still Identity”。">
-  <meta property="og:url" content="https://example.com/">
-  <meta property="og:image" content="https://example.com/assets/img/ogp.jpg">
+  <meta property="og:url" content="https://sahomatsu.github.io/gen-test20261009.github.io/">
+  <meta property="og:image" content="https://sahomatsu.github.io/gen-test20261009.github.io/assets/img/ogp.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:locale" content="ja_JP">

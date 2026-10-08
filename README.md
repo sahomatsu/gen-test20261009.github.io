@@ -132,7 +132,8 @@ BEM 記法：`c-card`（Block）／ `c-card__title`（Element・アンダース�
 | 2 | `index.html` の `c-embed` ブロック | Googleフォームの `<iframe>` を貼る（差し替え例をコメントに記載） |
 | 3 | `index.html` `data-movie-src` | YouTube の埋め込み URL（`VIDEO_ID` を実際の ID に） |
 | 4 | 開催日時 **4か所** | ①Hero の `data-deadline` ②フッターの `data-deadline` ③Exhibition の `<time datetime>` ④head の JSON-LD。**現在は 2027-03-27、時刻は未公開**（→ 17章） |
-| 5 | `index.html` head | `canonical` / `og:url` / `og:image` を実際のドメインに |
+| 5 | `index.html` head | `canonical` / `og:url` / `og:image`。**GitHub Pages のURLを設定済み。** 独自ドメインに移すときに書き換え |
+| 5-2 | `index.html` head の `<meta name="robots" content="noindex, nofollow">` | **本公開するときに削除。** 消し忘れると本番でも検索に載りません |
 | 6 | `contact@example.com` | 実際のメールアドレス（2か所：本文と `mailto:`） |
 | 7 | SNS リンク | Instagram / X / YouTube の各アカウント URL |
 | 8 | `assets/js/form.js` の送信処理 | 現在は送信の**ふり**をするだけ。実際の送信先（フォームサービス等）に接続が必要 |
