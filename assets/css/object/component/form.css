@@ -1,0 +1,199 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Object / Component / form.css  →  .c-form
+ * ----------------------------------------------------------------------------
+ * お問い合わせフォームの部品。
+ * Contact セクションだけで使うが、将来チケット申込にも流用できる形にしたいので
+ * Project 層ではなく Component 層に置いている。
+ * ========================================================================== */
+
+.c-form {
+  display: grid;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 34rem;
+  margin-inline: auto;
+}
+
+/* 1項目分の塊。
+ * label と input を div で包むのは、
+ * エラーメッセージを含めた3要素を縦に積む単位が必要なため。 */
+.c-form__field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.c-form__label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--color-text-weak);
+}
+
+/* 必須マーク。
+ * 「*」を色だけで示すと色覚特性によって伝わらないため、
+ * 記号＋スクリーンリーダー用テキスト（HTML側の u-visuallyHidden）を併用する。
+ *
+ * 色は --color-accent（黒基調では sand #ad9f88）。
+ * 黒地の上で 7.6:1 あり、11px の小さな記号でも十分に見える。
+ * ※ 紙白の面で使う場合、sand は 2.3:1 しか出ないので
+ *    data-tone="light" 側では accent が moss に切り替わる（base.css）。 */
+.c-form__required {
+  color: var(--color-accent);
+  margin-left: 0.4em;
+}
+
+/* 入力欄。
+ * 下線だけのデザインにしているのは、
+ * 枠で囲まれた入力欄が並ぶとページ内で最も強い図形要素になってしまい、
+ * 「装飾より情報設計」「コンテンツを主役に」という方針から外れるため。
+ * ただし下線のみだと入力欄の存在が弱くなるので、
+ * 背景にごく薄い面を敷いて領域を知覚できるようにしている。 */
+.c-form__input,
+.c-form__textarea {
+  width: 100%;
+  min-height: 44px;            /* タップ領域の確保（WCAG 2.1 / 2.5.5） */
+  padding: 0.75em 0.9em;
+  background-color: rgba(239, 239, 233, 0.05);
+  border: none;
+  border-bottom: 1px solid var(--color-line);
+  border-radius: 0;            /* iOS Safari が入力欄に勝手に付ける角丸を打ち消す */
+  color: var(--color-text);
+  font-size: max(1rem, var(--fs-base));
+  /* 【重要】iOS Safari は font-size が16px未満の入力欄にフォーカスすると
+   * 画面を自動で拡大してしまう。max() で必ず16px以上を確保して防いでいる。 */
+  line-height: 1.7;
+  transition: border-color var(--dur-fast) var(--ease),
+              background-color var(--dur-fast) var(--ease);
+}
+
+.c-form__textarea {
+  min-height: 9rem;            /* 複数行入力であることが見ただけで分かる高さ */
+}
+
+.c-form__input:focus,
+.c-form__textarea:focus {
+  outline: none;               /* 既定リングを消す代わりに下線を強調する。
+                                * 下の :focus-visible で別途リングを出すため、
+                                * キーボード操作者の視認性は損なわれない */
+  border-bottom-color: var(--color-text);
+  background-color: rgba(239, 239, 233, 0.09);
+}
+
+.c-form__input:focus-visible,
+.c-form__textarea:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* プレースホルダは補助情報。
+ * ラベルの代わりにしないこと（入力すると消えて何の欄か分からなくなるため）。
+ * 色を薄くしすぎるとコントラスト不足になるので weak 相当に留めている。 */
+.c-form__input::placeholder,
+.c-form__textarea::placeholder {
+  color: var(--color-text-weak);
+  opacity: 0.75;
+}
+
+/* --------------------------------------------------------------------------
+ * エラー表示
+ * aria-invalid="true" という「状態そのもの」をセレクタにしているのが要点。
+ * クラスを別途付ける方式だと、見た目だけ赤くなって
+ * 支援技術には何も伝わらない実装になりがちなので、
+ * 属性を正しく付けないと見た目も変わらない作りにしている。
+ * ------------------------------------------------------------------------ */
+.c-form__input[aria-invalid="true"],
+.c-form__textarea[aria-invalid="true"] {
+  border-bottom-color: var(--color-error);
+  background-color: rgba(208, 138, 114, 0.10);
+}
+
+.c-form__error {
+  /* 11〜13px の小さい文字は Noto Sans JP に逃がす。
+   * New Tegomin は線が細く不均一で、黒地の小さい文字では形が潰れるため
+   * （実測で判断。定義と理由は foundation/variables.css の --font-ui）。 */
+  font-family: var(--font-ui);
+  display: none;               /* 既定は非表示。JSがメッセージを入れたときだけ出す */
+  font-size: var(--fs-sm);
+  color: var(--color-error);
+  line-height: 1.6;
+}
+
+/* :not(:empty) で「中身があるときだけ表示」。
+ * JSで display を直接いじらずCSSに判断させることで、
+ * JS側は textContent を入れる／空にするだけで済み、処理が単純になる。 */
+.c-form__error:not(:empty) {
+  display: block;
+}
+
+/* 送信結果の通知領域。
+ * role="status" を付けた要素に当てる前提で、
+ * 成功・失敗どちらも同じ枠で表示する。 */
+.c-form__status {
+  /* 11〜13px の小さい文字は Noto Sans JP に逃がす。
+   * New Tegomin は線が細く不均一で、黒地の小さい文字では形が潰れるため
+   * （実測で判断。定義と理由は foundation/variables.css の --font-ui）。 */
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  line-height: 1.8;
+  padding: var(--space-4);
+  border: 1px solid var(--color-line);
+}
+
+.c-form__status:empty {
+  display: none;               /* 空のときに枠だけ残るのを防ぐ */
+}
+
+/* 注記（個人情報の取り扱いなど） */
+.c-form__note {
+  /* 11〜13px の小さい文字は Noto Sans JP に逃がす。
+   * New Tegomin は線が細く不均一で、黒地の小さい文字では形が潰れるため
+   * （実測で判断。定義と理由は foundation/variables.css の --font-ui）。 */
+  font-family: var(--font-ui);
+  font-size: var(--fs-xs);
+  line-height: 1.9;
+  color: var(--color-text-weak);
+}
+
+/* --------------------------------------------------------------------------
+ * .c-embed：Googleフォームなど外部埋め込み用の枠
+ * 理由：iframe は読み込み前に高さが0になり、読み込み後に一気に伸びて
+ * レイアウトがずれる（CLSの悪化）。先に比率で高さを確保しておく。
+ * ------------------------------------------------------------------------ */
+.c-embed {
+  position: relative;
+  width: 100%;
+  background-color: var(--surface-2);
+  /* Googleフォームは縦長になるため、比率ではなく最小高さで確保する。
+   * 比率固定だと画面が広いときに不必要に巨大な枠になってしまう。 */
+  min-height: clamp(26rem, 20rem + 20vw, 42rem);
+  overflow: hidden;
+}
+
+.c-embed__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* 埋め込み前のプレースホルダ（実装前の状態を画面上で示すためのもの）。
+ * 納品後にGoogleフォームのiframeへ差し替える箇所であることを
+ * 見た目でも分かるようにしている。 */
+.c-embed__placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  text-align: center;
+  color: var(--color-text-weak-on-dark);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.14em;
+  line-height: 2;
+}

@@ -1,0 +1,119 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Foundation / reset.css
+ * ----------------------------------------------------------------------------
+ * ブラウザ標準スタイルの差を消すレイヤー。
+ *
+ * 【なぜ normalize.css などのライブラリを使わないのか】
+ * 要件に「不要なライブラリ依存を避ける」とあるため、
+ * このサイトで実際に使う要素だけを対象にした最小限のリセットを自前で持つ。
+ * 未使用セレクタを配信しないぶんCSSが軽くなり、
+ * 何が効いているか追える（1年目でも読み切れる量に保つ）。
+ * ========================================================================== */
+
+/* すべての要素を border-box にする。
+ * 理由：padding や border を足しても width が増えないため、
+ * グリッドやカラム計算で「思っていた幅と違う」事故が起きない。 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ブラウザ既定のマージンを一旦ゼロにする。
+ * 理由：h1〜p などの初期マージンは上下で相殺（margin collapse）が起き、
+ * 余白設計が読みづらくなる。余白は後段のレイヤーで明示的に足す方針にする。 */
+body,
+h1, h2, h3, h4, h5, h6,
+p, figure, blockquote, dl, dd, ul, ol {
+  margin: 0;
+}
+
+ul[class],
+ol[class] {
+  /* class が付いたリストは「見た目を自前で作るリスト」なので記号とインデントを消す。
+   * class の無い素のリストは通常のリストとして残すため、属性セレクタで限定している。 */
+  padding: 0;
+  list-style: none;
+}
+
+/* 画像類の共通設定。
+ * display:block … インライン要素の下に生じる余白（行末のすき間）を消す
+ * max-width:100% … 親より大きい画像がはみ出して横スクロールが出るのを防ぐ
+ * height:auto  … width指定時に縦横比を保つ */
+img,
+picture,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* フォーム部品はフォントを継承しない仕様のため、明示的に継承させる。
+ * 理由：input だけ游ゴシックでなくなる、という不整合を防ぐ。 */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* textarea は縦方向のみリサイズ可にする。
+ * 理由：横に伸ばされるとレイアウトが破綻するが、
+ *       縦の伸縮はユーザーの利便性が高いので残す。 */
+textarea {
+  resize: vertical;
+}
+
+/* テーブルを使う場合に備えて罫線を重ねない設定にしておく */
+table {
+  border-collapse: collapse;
+}
+
+/* アンカーの下線は各コンポーネント側で制御するため、既定を解除。
+ * color:inherit にしているのは、青リンク色がデザインに合わないため。 */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ボタンの既定装飾を解除。
+ * cursor:pointer を足しているのは、押せることを視覚的に伝えるため。 */
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* 動きを減らす設定にしているユーザーへの配慮（WCAG 2.1 / 2.3.3・アニメーションからの回避）。
+ * 前庭障害や乗り物酔いに近い症状を持つ人にとって、大きな動きは体調不良に直結する。
+ * ほぼゼロ秒にする（0ではなく0.01ms）のは、
+ * transitionend / animationend イベントに依存したJSが動かなくなるのを防ぐため。 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+ * hidden 属性
+ * ----------------------------------------------------------------------------
+ * ブラウザの既定でも display:none になるが、
+ * こちらが後から display:grid / flex などを指定した要素に hidden を付けると、
+ * 指定のほうが勝って「隠したつもりが表示されたまま」になる事故が起きる。
+ * 「hidden と書いてあるのに見えている」は原因が非常に見つけにくいので、
+ * ここで !important を付けて必ず隠れるようにしている。
+ * （!important を使う数少ない正当な場面）
+ * -------------------------------------------------------------------------- */
+[hidden] {
+  display: none !important;
+}

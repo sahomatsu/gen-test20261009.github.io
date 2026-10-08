@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<!--
+  lang="ja" … このページの主言語。スクリーンリーダーの読み上げ言語の切り替えに使われる。
+  class="no-js" … JSが動いていない状態を表すクラス。ui.js の冒頭で取り除く。
+                   「JSが無効なときだけ効くCSS」を書けるようにするための定番の手法で、
+                   スクロール演出（初期状態が透明）が永久に見えなくなる事故を防いでいる。
+-->
+<html lang="ja" class="no-js">
+<head>
+  <meta charset="UTF-8">
+  <!--
+    viewport：モバイルで「PC幅で描画してから縮小表示」されるのを防ぐ必須の指定。
+    width=device-width で端末の幅に合わせ、initial-scale=1.0 で等倍表示にする。
+    user-scalable=no は付けない：拡大できないと弱視の方が読めなくなるため（WCAG 1.4.4）。
+  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ====================================================================
+       SEO：基本のメタ情報
+       title は「ブランド名｜内容」の順。検索結果では先頭ほど目に入るため、
+       固有名詞を先に置いている。全角30文字前後に収めると省略されにくい。
+       ==================================================================== -->
+  <title>Gen｜2027 S/S コレクション “Still Identity” ファッションショー</title>
+  <meta name="description" content="ファッションレーベル Gen による 2027 S/S コレクション “Still Identity”。2027年3月20日、東京でのランウェイショーを開催。コレクション、制作背景、チケット予約のご案内。">
+
+  <!-- 正規URL。同じ内容が複数URLで見えるときに「こちらが正」と伝える指定。
+       公開時は実際のドメインに書き換えてください。 -->
+  <link rel="canonical" href="https://example.com/">
+
+  <!-- ブラウザのUI色（モバイルのアドレスバー）。
+       サイトの基調色に合わせて、画面上端で色が途切れないようにする。 -->
+  <meta name="theme-color" content="#0b0c0a">
+
+  <!-- ====================================================================
+       OGP（SNSでシェアされたときの見え方）
+       og:image は 1200×630px、1MB以下が目安。
+       WebPではなくJPGにしているのは、一部のSNSがWebPのOGPを解釈できないため。
+       ==================================================================== -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Gen">
+  <meta property="og:title" content="Gen｜2027 S/S コレクション “Still Identity”">
+  <meta property="og:description" content="2027年3月20日、東京。ファッションレーベル Gen によるランウェイショー “Still Identity”。">
+  <meta property="og:url" content="https://example.com/">
+  <meta property="og:image" content="https://example.com/assets/img/ogp.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- ====================================================================
+       favicon（SVG）
+       外部ファイルを増やさず、データURIで直接埋め込んでいる。
+       理由：ファビコン1枚のために通信を1回増やしたくないため。
+       ==================================================================== -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0c0a'/%3E%3Ctext x='16' y='23' font-family='Arial' font-size='20' fill='%23f4f2eb' text-anchor='middle'%3EG%3C/text%3E%3C/svg%3E">
+
+  <!-- ====================================================================
+       LCP（最大要素の描画時間）対策
+       ファーストビューで最も大きい要素＝Heroの墨画像を最優先で読み込ませる。
+       preload を書くと、CSSの解析を待たずにダウンロードが始まる。
+       ==================================================================== -->
+  <link rel="preload" as="image" href="assets/img/ink-hero.webp" fetchpriority="high">
+
+  <!-- ====================================================================
+       Webフォント（Google Fonts）
+       ・DotGothic16 … 研究記録の打ち出しとカウントダウン。
+                       16px グリッドで設計されたドット書体で、観測装置の表示に合う。
+       ・New Tegomin … 本文の基本書体。
+       ・Noto Sans JP … 差し替え用の控え。New Tegomin の可読性が足りない箇所で使う。
+
+       【preconnect を2行書く理由】
+       フォントは「CSSを取りに行く fonts.googleapis.com」と
+       「フォント本体を取りに行く fonts.gstatic.com」の2つのサーバーに分かれている。
+       先に接続だけ済ませておくと、CSSを読み終えてから接続する往復が省ける。
+       gstatic 側に crossorigin が必要なのは、フォント本体が CORS 必須のため
+       （付け忘れると接続が再利用されず、preconnect の意味が無くなる）。
+
+       【display=swap】
+       フォントの取得が終わるまで、代替フォントで先に文字を出す指定。
+       これが無いと、取得が終わるまで文字が見えない時間（FOIT）が生まれる。
+       代わりに、切り替わる瞬間に字幅が変わる（FOUT）。
+       ==================================================================== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=New+Tegomin&family=Noto+Sans+JP:wght@437&display=swap" rel="stylesheet">
+
+  <!-- ====================================================================
+       導入演出を出すかどうかの判定
+       【なぜ <head> にインラインで書くのか】
+       このクラスは「bodyが描画される前」に付いていないと、
+       2回目以降の訪問でも黒いオーバーレイが一瞬だけ見えてしまう。
+       外部ファイルは defer で読み込むため必ず描画より後になるので、
+       ここだけは例外としてインラインに置いている（4行だけ）。
+       ==================================================================== -->
+  <script>
+    try {
+      if (sessionStorage.getItem('gen-loader-seen')) {
+        document.documentElement.classList.add('is-loaderSkipped');
+      }
+    } catch (e) { /* プライベートブラウジング等で読めなくても演出が出るだけ */ }
+  </script>
+
+  <!-- ====================================================================
+       CSS：FLOCSS の読み込み順
+       この順番には意味があり、入れ替えると意図しない上書きが起きる。
+         1. Foundation … 変数・リセット・素のHTML要素の既定
+         2. Layout     … ページの大枠（l-）
+         3. Object
+            3-1. Component … 汎用部品（c-）
+            3-2. Project   … このページ固有の塊（p-）
+            3-3. Utility   … 単機能の微調整（u-）※最後＝最優先で効かせるため
+       後に書いたものほど強く効くため、Utility を最後に置いている。
+
+       【@import を使わず link を並べている理由】
+       CSS内の @import は「親CSSを読み終えてから子の取得が始まる」直列読み込みになり、
+       表示開始が遅れる。link タグなら並列に取得できる。
+       ビルドツールを使わない構成での最適解として、この形を選んでいる。
+       （公開時は本番用に1ファイルへ結合・圧縮すると、さらに速くなります）
+       ==================================================================== -->
+  <link rel="stylesheet" href="assets/css/foundation/variables.css">
+  <link rel="stylesheet" href="assets/css/foundation/reset.css">
+  <link rel="stylesheet" href="assets/css/foundation/base.css">
+
+  <link rel="stylesheet" href="assets/css/layout/header.css">
+  <link rel="stylesheet" href="assets/css/layout/main.css">
+  <link rel="stylesheet" href="assets/css/layout/footer.css">
+
+  <link rel="stylesheet" href="assets/css/object/component/heading.css">
+  <link rel="stylesheet" href="assets/css/object/component/button.css">
+  <link rel="stylesheet" href="assets/css/object/component/figure.css">
+  <link rel="stylesheet" href="assets/css/object/component/list.css">
+  <link rel="stylesheet" href="assets/css/object/component/form.css">
+  <link rel="stylesheet" href="assets/css/object/component/sns.css">
+  <link rel="stylesheet" href="assets/css/object/component/reveal.css">
+  <link rel="stylesheet" href="assets/css/object/component/stalker.css">
+  <link rel="stylesheet" href="assets/css/object/component/motion.css">
+  <link rel="stylesheet" href="assets/css/object/component/loader.css">
+  <link rel="stylesheet" href="assets/css/object/component/cursorLabel.css">
+  <link rel="stylesheet" href="assets/css/object/component/numeric.css">
+  <link rel="stylesheet" href="assets/css/object/component/typewriter.css">
+
+  <link rel="stylesheet" href="assets/css/object/project/hero.css">
+  <link rel="stylesheet" href="assets/css/object/project/about.css">
+  <link rel="stylesheet" href="assets/css/object/project/designer.css">
+  <link rel="stylesheet" href="assets/css/object/project/record.css">
+  <link rel="stylesheet" href="assets/css/object/project/collection.css">
+  <link rel="stylesheet" href="assets/css/object/project/exhibition.css">
+  <link rel="stylesheet" href="assets/css/object/project/journal.css">
+  <link rel="stylesheet" href="assets/css/object/project/contact.css">
+
+  <link rel="stylesheet" href="assets/css/object/utility/utility.css">
+
+  <!-- ====================================================================
+       構造化データ（JSON-LD / Event型）
+       検索結果にイベント情報（日時・会場・チケット）を表示させるための記述。
+       ファッションショーは Event の下位型 TheaterEvent などもあるが、
+       誤解を招かない汎用の Event を使い、必要な項目だけ正確に書いている。
+       ※ 日程・会場・URLは公開前に必ず実際の値へ更新してください。
+
+       【一時変更】会場（location）とチケット（offers）は未公開のため外しています。
+       事実と違う情報を構造化データに残すと、検索結果に誤った会場が出てしまうためです。
+       会場・チケットが決まったら、下の形で戻してください（Googleのリッチリザルトは
+       location が必須なので、戻すまではイベントの詳細表示の対象外になります）。
+
+         "location": {
+           "@type": "Place",
+           "name": "会場名",
+           "address": {
+             "@type": "PostalAddress",
+             "streetAddress": "番地", "addressLocality": "市区町村",
+             "addressRegion": "都道府県", "postalCode": "郵便番号", "addressCountry": "JP"
+           }
+         },
+         "offers": {
+           "@type": "Offer", "name": "一般チケット",
+           "price": "6000", "priceCurrency": "JPY",
+           "availability": "https://schema.org/InStock",
+           "url": "https://example.com/#exhibition"
+         },
+       ==================================================================== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "name": "Gen 2027 S/S Collection “Still Identity”",
+    <!-- 開催時刻は未公開のため、日付だけを書いている。
+         schema.org は日付のみの指定（YYYY-MM-DD）も正式に認めている。
+         時刻が決まったら "2027-03-27T18:00:00+09:00" の形に戻し、
+         endDate も同じ日の終演時刻にしてください。 -->
+    "startDate": "2027-03-27",
+    "endDate": "2027-03-27",
+    "eventStatus": "https://schema.org/EventScheduled",
+    "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+    "image": ["https://example.com/assets/img/ogp.jpg"],
+    "description": "ファッションレーベル Gen による 2027 S/S コレクション “Still Identity” のランウェイショー。",
+    "organizer": {
+      "@type": "Organization",
+      "name": "Gen",
+      "url": "https://example.com/"
+    }
+  }
+  </script>
+</head>
+
+<body>
+
+  <!--
+    スキップリンク：キーボード利用者が、ナビを飛ばして本文へ移動するためのリンク。
+    WCAG 2.1 の 2.4.1（ブロックスキップ）への対応。
+    ページ内で最初にフォーカスが当たる位置に置く必要があるため、body の先頭に置いている。
+  -->
+  <!-- ======================================================================
+       導入演出（初回訪問のみ）
+       HTMLに最初から書いてあるのは、JSを待たずに表示させるため。
+       消えるのはCSSアニメーションの役目なので、JSが動かなくても
+       1.9秒後には必ず消えて操作できるようになる（loader.css 参照）。
+       aria-hidden="true" … 装飾なので読み上げ対象から外す。
+       本文はこの裏に既に存在しているため、読み上げは通常どおり進む。
+       ====================================================================== -->
+  <div class="c-loader" aria-hidden="true">
+    <span class="c-loader__drop"></span>
+    <!--
+      導入演出で浮かび上がるロゴ。
+      Hero と同じ logoset_white.png を使っている。
+      このあと Hero でも同じ画像を出すため、ブラウザのキャッシュが効いて
+      2回目の通信は発生しない（＝演出のために画像が1枚増えることはない）。
+      aria-hidden は親（.c-loader）に付いているので、alt は空でよい。
+    -->
+    <img class="c-loader__mark" src="assets/img/logoset_white.png"
+         alt="" width="321" height="511" decoding="async">
+  </div>
+
+  <a class="u-skipLink" href="#main">本文へスキップ</a>
+
+  <!-- ======================================================================
+       ヘッダー
+       ====================================================================== -->
+  <header class="l-header">
+    <!--
+      ブランド名。Heroを抜けたら表示される（ui.js）。
+      Heroの巨大な "Gen" と同時に出ると二重になるため、初期状態は非表示。
+    -->
+    <a class="l-header__brand" id="js-brand" href="#hero">
+      <!--
+        シンボルマーク。
+        リンクの中身が画像だけなので、alt には「どこへ行くリンクか」を書く
+        （画像の説明ではなくリンクの行き先を書くのが、画像リンクの原則）。
+        width / height は実寸。表示サイズはCSSで決めるが、
+        属性を書いておくと読み込み前に場所が確保され、レイアウトがずれない。
+      -->
+      <img class="l-header__brandImg" src="assets/img/symbol_white.png"
+           alt="Gen ページ先頭へ" width="321" height="378" decoding="async">
+    </a>
+
+    <!--
+      aria-controls / aria-expanded：
+      このボタンが id="js-nav" の要素を開閉すること、今どちらの状態かを支援技術へ伝える。
+      見た目のクラスと必ず同時に更新する（ui.js）。
+    -->
+    <button class="l-header__toggle" id="js-navToggle" type="button"
+            aria-controls="js-nav" aria-expanded="false">
+      <span class="l-header__toggleBar" aria-hidden="true"></span>
+      <span class="l-header__toggleBar" aria-hidden="true"></span>
+      <!-- ボタンの中身が線だけだと、音声では何のボタンか分からない。
+           視覚的に隠したテキストで名前を与えている。 -->
+      <span class="u-visuallyHidden">メニューを開く</span>
+    </button>
+
+    <!--
+      nav 要素に aria-label を付ける理由：
+      ページ内に nav が複数（ヘッダー・フッター）あるため、
+      支援技術の「ランドマーク一覧」で区別できるようにする。
+    -->
+    <nav class="l-header__nav" id="js-nav" aria-label="メインナビゲーション">
+      <ul class="l-header__list">
+        <li><a class="l-header__link" href="#designer"   data-navlink>Designer</a></li>
+        <!-- 【一時非表示】Collection セクションを公開するときに、この2行のコメントを外す
+        <li><a class="l-header__link" href="#collection" data-navlink>Collection</a></li>
+        -->
+        <li><a class="l-header__link" href="#exhibition" data-navlink>Exhibition</a></li>
+        <!-- 【一時非表示】Journal セクションを公開するときに、この2行のコメントを外す
+        <li><a class="l-header__link" href="#journal"    data-navlink>Journal</a></li>
+        -->
+        <li><a class="l-header__link" href="#contact"    data-navlink>Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ======================================================================
+       マウスストーカー（墨）
+       canvas は「絵」であって情報ではないため aria-hidden="true" で読み上げ対象外にする。
+       ====================================================================== -->
+
+  <canvas class="c-stalker" id="js-stalker" aria-hidden="true"></canvas>
+
+  <!--
+    試料ラベル。カーソルの少し後ろに付いてくる座標表示。
+    情報ではなく気配なので aria-hidden="true"。
+    初期位置は画面外（CSSのtransformで動かす）なので、
+    JSが動かない環境では一切表示されない。
+  -->
+  <div class="c-cursorLabel" id="js-cursorLabel" aria-hidden="true">
+    <span data-coord>X:0000  Y:0000</span>
+    <span class="c-cursorLabel__sub" data-sub>SPECIMEN 01</span>
+  </div>
+
+  <!--
+    画面全体の粒子（フィルムグレイン）。
+    feTurbulence で生成しているため画像の読み込みは発生しない。
+    baseFrequency が大きいほど細かい粒になる。0.9 は元コードの値を踏襲。
+  -->
+  <svg class="c-grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <filter id="grainFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="n"/>
+      <feColorMatrix in="n" type="matrix"
+        values="0 0 0 0 0.9  0 0 0 0 0.9  0 0 0 0 0.85  0 0 0 0.5 0"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#grainFilter)"/>
+  </svg>
+
+  <!-- ======================================================================
+       メイン
+       ====================================================================== -->
+  <main class="l-main" id="main">
+
+    <!-- ====================================================================
+         HERO
+         data-tone="dark" … この面が暗いことの宣言。
+         CSSの配色（foundation/base.css）と、
+         マウスストーカーの墨の色（ink-stalker.js）の両方がこの1つの値を見ている。
+         ==================================================================== -->
+    <section class="p-hero" id="hero" data-tone="dark" aria-labelledby="hero-title">
+
+      <!--
+        Heroの墨。
+        背景画像ではなく img で置いているのは、ブラウザが早期に発見して
+        読み込みを始められるようにするため（LCP対策）。
+        fetchpriority="high" で他の画像より優先させる。
+        装飾ではなく主役のビジュアルだが、内容は抽象的で言語化しても情報量が無いため
+        alt="" とし、代わりに aria-hidden を付けず装飾扱いにしている。
+      -->
+      <img class="p-hero__ink c-breathe" src="assets/img/ink-hero.webp" alt=""
+           width="2000" height="1100" fetchpriority="high" decoding="async">
+      <div class="p-hero__scrim" aria-hidden="true"></div>
+
+      <div class="p-hero__inner l-container">
+
+        <div class="p-hero__titleBlock">
+          <!--
+            ページ内で唯一の h1。
+            サイト名ではなく「このページが何か」を表す見出しとして置いている。
+            視覚的には "Gen" のみだが、音声では文脈が伝わるよう補足を隠しテキストで添える。
+          -->
+          <h1 class="p-hero__title c-reveal c-reveal--ink js-reveal" id="hero-title">
+            <!--
+              ブランドのロゴセット（シンボル＋ロゴタイプ）。
+              見出しの中身を画像にする場合、alt がそのまま見出しの文字列になる。
+              そのため alt はブランド名そのものにし、補足は隠しテキストで続ける。
+
+              fetchpriority="high" … ファーストビューで最も目立つ要素なので、
+              他の画像より先に取りに行かせる（LCP対策）。
+              loading="lazy" は付けない。付けると最初の描画で読み込みが始まらず、
+              かえって表示が遅くなる。
+            -->
+            <img class="p-hero__logo" src="assets/img/logoset_white.png"
+                 alt="Gen" width="321" height="511"
+                 fetchpriority="high" decoding="async">
+            <span class="u-visuallyHidden"> 2027 S/S コレクション “Still Identity”</span>
+          </h1>
+        </div>
+
+        <div class="p-hero__counterBlock c-reveal js-reveal c-reveal--d1">
+          <!--
+            カウントダウン。
+            data-deadline に開催日時を ISO 8601 形式で書いておくと countdown.js が読む。
+            日程を変えるときは、ここと下の <time datetime="..."> の2か所、
+            そして head の JSON-LD を更新してください。
+          -->
+          <p class="p-hero__counter c-num" data-countdown data-deadline="2027-03-27T00:00:00+09:00">000:00:00</p>
+          <p class="p-hero__counterUnits" aria-hidden="true">
+            <span>DAYS</span><span>HOURS</span><span>MIN</span>
+          </p>
+        </div>
+
+        <!--
+          最新情報。
+          dl（定義リスト）を使うのは、日付と内容が対の関係にあるため。
+          ul で組むと、日付と本文が「別々の項目」として読み上げられてしまう。
+        -->
+        <div class="p-hero__news c-reveal js-reveal c-reveal--d2">
+          <h2 class="u-visuallyHidden">最新情報</h2>
+          <dl class="c-newsList">
+            <div class="c-newsList__item">
+              <dt class="c-newsList__date"><time datetime="2026-10-11">2026.10.11</time></dt>
+              <dd class="c-newsList__body">OFFICIAL SITE OPEN</dd>
+            </div>
+            <!--<div class="c-newsList__item">
+              <dt class="c-newsList__date"><time datetime="2026-11-30">2026.11.30</time></dt>
+              <dd class="c-newsList__body">チケット予約販売を開始しました</dd>
+            </div>
+            <div class="c-newsList__item">
+              <dt class="c-newsList__date"><time datetime="2027-01-20">2027.01.20</time></dt>
+              <dd class="c-newsList__body">ルックブックの一部を公開しました</dd>
+            </div>-->
+          </dl>
+          <!--
+          <p class="p-hero__more">
+             【一時変更】本来のリンク先は #journal。
+                 Journal を非表示にしている間だけ #exhibition へ向けている。
+                 Journal を公開するときは href を #journal に戻すこと。 -->
+            <!--<a class="c-button c-button--text" href="#exhibition">
+              and more<span class="c-button__arrow" aria-hidden="true">→</span>
+            </a>
+          </p>-->
+        </div>
+      </div>
+
+      <!-- スクロールの誘導。装飾なので読み上げ対象から外す -->
+      <div class="p-hero__scroll" aria-hidden="true">
+        <span class="p-hero__scrollLine"></span>
+        <span>SCROLL</span>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         ABOUT
+         ==================================================================== -->
+    <!-- ====================================================================
+         【一時非公開】ABOUT
+         コンセプト本文は、下の RESEARCH RECORD 01〜03 とエンドコメントに
+         断片として分割したため、このセクションごと hidden にしています。
+         （文章自体は消していません。戻すときは hidden を外してください）
+         デザイナー紹介はここから取り出し、独立したセクションにしています。
+         ==================================================================== -->
+    <section class="l-section p-about" id="about" data-tone="dark" aria-labelledby="about-label" hidden>
+      <div class="l-container">
+
+        <div class="c-sectionHead">
+          <p class="c-label js-sectionLabel" id="about-label" role="heading" aria-level="2">SEC.01 — Brand</p>
+          <h2 class="c-sectionTitle c-reveal js-reveal c-reveal--d1" id="about-title" hidden>
+            <span class="c-sectionTitle__mark" aria-hidden="true">::</span><span data-split>About</span>
+          </h2>
+        </div>
+
+        <!--
+          コンセプト本文。
+          1文字ずつ打ち出される（assets/js/typewriter.js）。
+
+          【文章はHTMLにそのまま書いてある】
+          JSが文章を持つのではなく、ここに書いた文章をJSが組み替えて打ち出す。
+          そのため、文言の修正はこのHTMLを直すだけで済み、
+          JSが動かない環境でも文章は普通に読める（読み上げ・検索・コピーも全文が対象）。
+
+          data-type-speed … 1文字あたりのミリ秒。数字を大きくすると遅くなる。
+
+          【分量が多いので】
+          文字サイズを本文より小さく、色を一段薄くしている（p-about__concept）。
+          読む負担を下げつつ、「記録・資料」としての佇まいに寄せる狙い。
+        -->
+        <div class="p-about__concept c-type" data-typewriter data-type-speed="18">
+          <p class="c-type__line">静物とは社会的定義によって役割・形態・認識が固定されているもの。</p>
+          <p class="c-type__line">ここで扱う静物は自然発生的に生まれたものに対して名前をつけたものではなく、人間によって作られ、この形、この性質だと決められたものである。</p>
+          <p class="c-type__line">静止している=崩壊していない、同一性を維持している</p>
+          <p class="c-type__line">これは社会的定義に対してその静物が安定して成立している状態。つまり、均衡が保てている状態だということ。</p>
+          <p class="c-type__line">静物には感情はない。がアイデンティティーはある。また、このアイデンティティーは二層になっていて社会的定義に当てはまるアイデンティティー、その上での個体としてのアイデンティティーである。</p>
+          <p class="c-type__line">この二つのアイデンティティーの均衡が保てなくなった時同一性の崩壊が起きる。均衡を保てる幅は個体差がある、だからこそ同じ定義づけされたものでも崩壊が起きるもの、起きないものがある。この崩壊が起きるものはマイノリティであり、人間には異常だと捉えられるため保管されて観察されている。</p>
+          <p class="c-type__line">崩壊が起きた静物は変容後も個体としてのアイデンティティーが崩れることはない。その崩壊は構成要素が変わることがないからである。つまり崩壊しているものは、存在そのものではなく社会的認識との接続ということになる。</p>
+          <p class="c-type__line">会場は研究所であるが、この研究所が行なっていることは、保管した静物の崩壊、変容を抑える、直すことではない。観測し、そのものが何になるのか。個体として変化はしないが社会的にはどう定義されるのかをそれぞれに記録、命名していくことである。新たに今までとは違う社会的定義を与えることで、新たな二つのアイデンティティーが生まれ均衡が保てるようになる。</p>
+          <p class="c-type__line">この変容は一見すると恐ろしく感じるが、美しいものであるのだ。人間が幼児から老人へと変容するように。</p>
+          <p class="c-type__line">このコンセプト、この世界観を通して観客には2つのアイデンティティーを感じて欲しいというのと、そのアイデンティティーは壊れないもの、壊れるものがある。ではつまり定義とは何のため、なんだったのかと感じてほしい。また、研究室では新たな定義が付与されるがこの研究者たちは味方ではない。新たな定義を与え分類し、命名し再定義するという再び社会的圧力を与えているということになるのだ。研究室は救済機関なのか。</p>
+          <p class="c-type__line">ここで最後に残るのは結局完全安定の未来があるのか。定義なしに存在は成立するのか、という疑問である。</p>
+          <p class="c-type__line">これは社会問題を提示するものではなく、社会的定義への疑問投下である。</p>
+          <p class="c-type__line">この世界では、定義から逃げ切ることができない。</p>
+        </div>
+
+      </div>
+
+      <!--
+        墨の帯。ワイヤーフレームの「About と Collection の間に入る墨＋テキスト」にあたる。
+        l-container--full で画面幅いっぱいに広げる。
+      -->
+      <div class="p-about__ink c-inkBand c-reveal c-reveal--fade js-reveal">
+        <img class="c-inkBand__img" src="assets/img/ink-band.webp" alt=""
+             width="2000" height="900" loading="lazy" decoding="async">
+        <div class="c-inkBand__body">
+          <p class="p-about__inkText">
+            にじみは失敗ではなく、素材が環境に応答した記録である。<br>
+            わたしたちは、その記録を消さずに縫い留める。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         RESEARCH RECORD 01
+         配置：デザイナー紹介の前。スクロールして最初に出会う断片。
+
+         【見出しは打ち出さず、本文だけを打ち出す理由】
+         研究記録の用紙に例えると、見出しと STATUS 欄は「用紙に印刷済みの項目」、
+         本文は「研究員がこれから書き込む内容」にあたる。
+         見出しまで打ち出すと、何の記録なのかが分かるまで待たされてしまう。
+
+         本文の改行は、いただいた原稿の改行位置をそのまま保持しています
+         （CSS の white-space: pre-wrap で、書いたとおりに改行されます）。
+         文言を直すときは、この中を書き換えるだけで動きます。
+         ==================================================================== -->
+    <section class="l-section l-section--tight p-record p-record--stable" id="record-01" data-tone="dark"
+             aria-labelledby="record-01-title">
+      <div class="l-container l-container--narrow">
+
+        <div class="p-record__head c-reveal js-reveal">
+          <h2 class="p-record__title" id="record-01-title">RESEARCH RECORD 01</h2>
+          <p class="p-record__status" data-status="stable">
+            <!-- 状態を示す小さな点。色は変えず、点滅の仕方だけで3つの状態を書き分けている
+                 （パレットに色を足さずに差を出すため。意味は必ず文字でも書く） -->
+            <span class="p-record__statusDot" aria-hidden="true"></span>
+            STATUS : STABLE
+          </p>
+        </div>
+
+        <!--
+          data-typewriter      … この塊を1文字ずつ打ち出す（assets/js/typewriter.js）
+          data-type-speed      … 1文字あたりのミリ秒。大きくすると遅くなる
+          data-type-caret      … keep にすると、打ち終わったあともカーソルが点滅し続ける
+                                 （「まだ書き込んでいる途中」に見せるため）
+        -->
+        <div class="p-record__body c-type" data-typewriter data-type-speed="26" data-type-caret="keep">
+          <p class="c-type__line">
+          静物とは、社会的定義によって
+          役割・形態・性質が固定されたものである。
+          静止しているとは、
+          崩壊していないこと。
+          同一性を維持していること。
+          静物には感情はない。
+          しかし、アイデンティティーは存在する。
+          ひとつは、社会によって与えられたもの。
+          もうひとつは、個体そのものが持つもの。
+          静物は、この二つの均衡によって成立している。
+          </p>
+        </div>
+
+        <!--
+          記録の属性（用紙の下端にある記入欄にあたる）。
+          STATUS と同じく世界観の一部で、単なる装飾ではない。
+          REC.（記録の状態）が 01→03 で CLOSED → CLOSED → OPEN と変わり、
+          03 だけ試料番号が欠落している。説明は加えず、値の差だけで示している。
+        -->
+        <p class="p-record__meta c-reveal js-reveal c-reveal--d1">
+            <span>SPEC. 001</span>
+            <span>OBS. 2026.11.04</span>
+            <span>REC. CLOSED</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         DESIGNER
+         もとは About セクションの中にあったブロック。
+         About を一時非公開にしたため、独立したセクションとして取り出しています。
+         （内容は一切変更していません）
+         ==================================================================== -->
+    <section class="l-section p-designer" id="designer" data-tone="dark" aria-labelledby="designer-label">
+      <div class="l-container">
+
+        <div class="c-sectionHead">
+          <p class="c-label js-sectionLabel" id="designer-label" role="heading" aria-level="2">SEC.01 — Designer</p>
+          <h2 class="c-sectionTitle c-reveal js-reveal c-reveal--d1" id="designer-title" hidden>
+            <span class="c-sectionTitle__mark" aria-hidden="true">::</span><span data-split>Designer</span>
+          </h2>
+        </div>
+
+        <!--
+          デザイナー紹介。
+          ワイヤーフレームには図として描かれていないが、掲載必須項目に含まれるため追加した。
+          「ブランドの説明 → 作り手」の順に置いているのは、
+          作品より先に作家が立つ構成を避けるため。
+        -->
+        <div class="p-designer__body">
+          <figure class="c-figure c-figure--portrait c-figure--zoom p-designer__figure c-reveal js-reveal">
+            <!--
+              loading="lazy" … 画面に近づくまで読み込まない。
+              ファーストビューの外にある画像すべてに付けている（通信量とLCPの改善）。
+              width / height … 実寸を書いておくと、読み込み前でもブラウザが場所を確保でき、
+              読み込み後に他の要素が動く「レイアウトのずれ（CLS）」が起きない。
+            -->
+            <img class="c-figure__img" src="assets/img/journal-01.webp"
+                 alt="アトリエで布地を確かめるデザイナー 中村 玄"
+                 width="900" height="1350" loading="lazy" decoding="async">
+          </figure>
+
+          <div class="p-designer__text c-reveal js-reveal c-reveal--d1">
+            <p class="p-designer__role">Designer</p>
+            <p class="p-designer__name">Kimola<!--<span class="u-visuallyHidden">（なかむら げん）</span>--></p>
+            <div class="c-text c-text--weak">
+              <p>
+                プロフィールコメントを記載<br>プロフィールコメントを記載<br>プロフィールコメントを記載<br>
+              </p>
+              <p>
+                プロフィールコメントを記載<br>プロフィールコメントを記載<br>プロフィールコメントを記載<br>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         RESEARCH RECORD 02
+         配置：デザイナー紹介の後。
+
+         【見出しは打ち出さず、本文だけを打ち出す理由】
+         研究記録の用紙に例えると、見出しと STATUS 欄は「用紙に印刷済みの項目」、
+         本文は「研究員がこれから書き込む内容」にあたる。
+         見出しまで打ち出すと、何の記録なのかが分かるまで待たされてしまう。
+
+         本文の改行は、いただいた原稿の改行位置をそのまま保持しています
+         （CSS の white-space: pre-wrap で、書いたとおりに改行されます）。
+         文言を直すときは、この中を書き換えるだけで動きます。
+         ==================================================================== -->
+    <section class="l-section l-section--tight p-record p-record--unstable" id="record-02" data-tone="dark"
+             aria-labelledby="record-02-title">
+      <div class="l-container l-container--narrow">
+
+        <div class="p-record__head c-reveal js-reveal">
+          <h2 class="p-record__title" id="record-02-title">RESEARCH RECORD 02</h2>
+          <p class="p-record__status" data-status="unstable">
+            <!-- 状態を示す小さな点。色は変えず、点滅の仕方だけで3つの状態を書き分けている
+                 （パレットに色を足さずに差を出すため。意味は必ず文字でも書く） -->
+            <span class="p-record__statusDot" aria-hidden="true"></span>
+            STATUS : UNSTABLE
+          </p>
+        </div>
+
+        <!--
+          data-typewriter      … この塊を1文字ずつ打ち出す（assets/js/typewriter.js）
+          data-type-speed      … 1文字あたりのミリ秒。大きくすると遅くなる
+          data-type-caret      … keep にすると、打ち終わったあともカーソルが点滅し続ける
+                                 （「まだ書き込んでいる途中」に見せるため）
+        -->
+        <div class="p-record__body c-type" data-typewriter data-type-speed="26" data-type-caret="keep">
+          <p class="c-type__line">
+          二つのアイデンティティーの均衡が崩れたとき、
+          静物の「崩壊」が起こる。
+          しかし、崩壊しているのは
+          存在そのものではない。
+          個体としてのアイデンティティーは残る。
+          変化するのは、
+          その存在と社会的定義との接続である。
+          同じ定義を与えられたものでも、
+          崩壊するものと、しないものがある。
+          その差には、個体差が存在する。
+          </p>
+        </div>
+
+        <!--
+          記録の属性（用紙の下端にある記入欄にあたる）。
+          STATUS と同じく世界観の一部で、単なる装飾ではない。
+          REC.（記録の状態）が 01→03 で CLOSED → CLOSED → OPEN と変わり、
+          03 だけ試料番号が欠落している。説明は加えず、値の差だけで示している。
+        -->
+        <p class="p-record__meta c-reveal js-reveal c-reveal--d1">
+            <span>SPEC. 015</span>
+            <span>OBS. 2027.01.22</span>
+            <span>REC. CLOSED</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         COLLECTION
+         ==================================================================== -->
+    <!-- ====================================================================
+         【一時非表示】COLLECTION
+         公開するときは、この section の hidden 属性を消すだけで戻ります
+         （中身は一切変更していません）。あわせて次の3か所も戻してください。
+           1. ヘッダーナビのコメントアウト（上部）
+           2. フッターナビのコメントアウト（下部）
+           3. セクション番号 SEC.0x の振り直し（下のコメント参照）
+         hidden 属性を使っているのは、HTMLを消さずに「表示だけ止める」ためです。
+         hidden が付いた要素は画面にも読み上げにも出ず、
+         中の画像（loading="lazy"）も読み込まれません。
+         ==================================================================== -->
+    <section class="l-section p-collection" id="collection" data-tone="dark" aria-labelledby="collection-label" hidden>
+      <div class="l-container">
+
+        <div class="c-sectionHead">
+          <p class="c-label js-sectionLabel" id="collection-label" role="heading" aria-level="2">SEC.02 — Collection</p>
+          <h2 class="c-sectionTitle c-reveal js-reveal c-reveal--d1" id="collection-title" hidden>
+            <span class="c-sectionTitle__mark" aria-hidden="true">::</span><span data-split>Collection</span>
+          </h2>
+        </div>
+
+        <!-- コンセプト。ワイヤーの “Still Identity” にあたる -->
+        <p class="p-collection__concept c-reveal js-reveal">“Still Identity”</p>
+        <p class="c-text c-text--weak p-collection__conceptNote c-reveal js-reveal c-reveal--d1">
+          静止している間も、身体は微細に動き続けている。
+          2027 S/S は「静けさの中の運動」を主題に、
+          同一のパターンを異なる素材で15体展開する。
+        </p>
+
+        <!--
+          シーズン一覧。
+          掲載必須項目の「シーズン一覧」にあたる。
+          目次のような索引の形にしているのは、
+          サムネイルを並べるより情報の階層が明確で、
+          「装飾より情報設計を優先」という方針に合うため。
+        -->
+        <div class="p-collection__index c-reveal js-reveal">
+          <h3 class="u-visuallyHidden">シーズン一覧</h3>
+          <ul class="c-indexList">
+            <li class="c-indexList__item is-current">
+              <span class="c-indexList__no">01</span>
+              <span class="c-indexList__name">Still Identity</span>
+              <span class="c-indexList__year">2027 S/S</span>
+            </li>
+            <li class="c-indexList__item">
+              <span class="c-indexList__no">02</span>
+              <span class="c-indexList__name">Grain</span>
+              <span class="c-indexList__year">2026 A/W</span>
+            </li>
+            <li class="c-indexList__item">
+              <span class="c-indexList__no">03</span>
+              <span class="c-indexList__name">Undyed</span>
+              <span class="c-indexList__year">2026 S/S</span>
+            </li>
+            <li class="c-indexList__item">
+              <span class="c-indexList__no">04</span>
+              <span class="c-indexList__name">First Specimen</span>
+              <span class="c-indexList__year">2025 A/W</span>
+            </li>
+          </ul>
+        </div>
+
+        <!--
+          ルック。
+          ワイヤーどおり4点を横並びに。
+          figure/figcaption ではなく figure + 外側の p にしているのは、
+          キャプションを画像枠の外に置いて、
+          画像の明暗に関係なく必ず読める状態にするため。
+        -->
+        <div class="p-collection__looks">
+          <h3 class="u-visuallyHidden">ルック</h3>
+
+          <div class="p-collection__look c-reveal js-reveal">
+            <figure class="c-figure c-figure--zoom">
+              <img class="c-figure__img" data-parallax="8" src="assets/img/look-01.webp"
+                   alt="ルック01：生成りのロングシャツドレス。裾に向かって織りが粗くなる"
+                   width="960" height="1320" loading="lazy" decoding="async">
+            </figure>
+            <p class="p-collection__lookCaption"><span>LOOK 01</span><span>Undyed linen</span></p>
+            <!--
+              標本ラベル（仕様表）。
+              番手・目付・ロット番号は、実際の生産現場でその服に必ず存在する値。
+              架空の記号を散らすより本物の値を小さく置くほうが強いため、この形にしている。
+              撮影素材に差し替えたあとも、この表はそのまま使い続けられる。
+            -->
+            <dl class="c-spec">
+            <div class="c-spec__row">
+              <dt class="c-spec__key">Warp</dt>
+              <dd class="c-spec__value">60/1 Linen</dd>
+            </div>
+            <div class="c-spec__row">
+              <dt class="c-spec__key">Weft</dt>
+              <dd class="c-spec__value">40/1 Linen</dd>
+            </div>
+            <div class="c-spec__row">
+              <dt class="c-spec__key">GSM</dt>
+              <dd class="c-spec__value">128 <span class="c-num__unit">g/m²</span></dd>
+            </div>
+            <div class="c-spec__row">
+              <dt class="c-spec__key">Lot</dt>
+              <dd class="c-spec__value">2703-A</dd>
+            </div>
+            </dl>
+          </div>
+
+          <div class="p-collection__look c-reveal js-reveal c-reveal--d1">
+            <figure class="c-figure c-figure--zoom">
+              <img class="c-figure__img" data-parallax="6" src="assets/img/look-02.webp"
+                   alt="ルック02：砂色のドレープジャケット。肩から一枚の布で裁たれている"
+                   width="960" height="1320" loading="lazy" decoding="async">
+            </figure>
+            <p class="p-collection__lookCaption"><span>LOOK 02</span><span>Sand wool</span></p>
+            <!--
+              標本ラベル（仕様表）。
+              番手・目付・ロット番号は、実際の生産現場でその服に必ず存在する値。
+              架空の記号を散らすより本物の値を小さく置くほうが強いため、この形にしている。
+              撮影素材に差し替えたあとも、この表はそのまま使い続けられる。
+            -->
+            <dl class="c-spec">
+            <div class="c-spec__row">
+              <dt class="c-spec__key">Warp</dt>
+              <dd class="c-spec__value">2/48 Wool</dd>
+            </div>
+            <div class="c-spec__row">
+              <dt class="c-spec__key">Weft</dt>
+              <dd class="c-spec__value">2/48 Wool</dd>
+            </div>
+            <div class="c-spec__row">
+              <dt class="c-spec__key">GSM</dt>
+              <dd class="c-spec__value">186 <span class="c-num__unit">g/m²</span></dd>
+            </div>
+            <div class="c-spec__row">
+              <dt class="c-spec__key">Lot</dt>
+              <dd class="c-spec__value">2703-B</dd>
+            </div>
+            </dl>
+          </div>
+
+          <div class="p-collection__look c-reveal js-reveal c-reveal--d2">
+            <figure class="c-figure c-figure--zoom">
+              <img class="c-figure__img" data-parallax="9" src="assets/img/look-03.webp"
+                   alt="ルック03：灰緑のワイドトラウザー。縦に走る折り目が動きで変化する"
+                   width="960" height="1320" loading="lazy" decoding="async">
+            </figure>
+            <p class="p-collection__lookCaption"><span>LOOK 03</span><span>Sage cotton</span></p>
+            <!--
+              標本ラベル（仕様表）。
+              番手・目付・ロット番号は、実際の生産現場でその服に必ず存在する値。
+              架空の記号を散らすより本物の値を小さく置くほうが強いため、この形にしている。
+              撮影素材に差し替えたあとも、この表はそのまま使い続けられる。
+            -->
+            <dl class="c-spec">
+            <div class="c-spec__row">
+              <dt class="c-spec__key">Warp</dt>
+              <dd class="c-spec__value">80/2 Cotton</dd>
+            </div>
+            <div class="c-spec__row">
+              <dt class="c-spec__key">Weft</dt>
+              <dd class="c-spec__value">60/1 Cotton</dd>
+            </div>
+            <div class="c-spec__row">
+              <dt class="c-spec__key">GSM</dt>
+              <dd class="c-spec__value">142 <span class="c-num__unit">g/m²</span></dd>
+            </div>
+            <div class="c-spec__row">
+              <dt class="c-spec__key">Lot</dt>
+              <dd class="c-spec__value">2703-C</dd>
+            </div>
+            </dl>
+          </div>
+
+          <div class="p-collection__look c-reveal js-reveal c-reveal--d3">
+            <figure class="c-figure c-figure--zoom">
+              <img class="c-figure__img" data-parallax="7" src="assets/img/look-04.webp"
+                   alt="ルック04：淡い霧色のレイヤードトップス。二枚の薄地を重ねている"
+                   width="960" height="1320" loading="lazy" decoding="async">
+            </figure>
+            <p class="p-collection__lookCaption"><span>LOOK 04</span><span>Mist layered</span></p>
+            <!--
+              標本ラベル（仕様表）。
+              番手・目付・ロット番号は、実際の生産現場でその服に必ず存在する値。
+              架空の記号を散らすより本物の値を小さく置くほうが強いため、この形にしている。
+              撮影素材に差し替えたあとも、この表はそのまま使い続けられる。
+            -->
+            <dl class="c-spec">
+            <div class="c-spec__row">
+              <dt class="c-spec__key">Face</dt>
+              <dd class="c-spec__value">30D Nylon</dd>
+            </div>
+            <div class="c-spec__row">
+              <dt class="c-spec__key">Back</dt>
+              <dd class="c-spec__value">40/1 Cotton</dd>
+            </div>
+            <div class="c-spec__row">
+              <dt class="c-spec__key">GSM</dt>
+              <dd class="c-spec__value">96 <span class="c-num__unit">g/m²</span></dd>
+            </div>
+            <div class="c-spec__row">
+              <dt class="c-spec__key">Lot</dt>
+              <dd class="c-spec__value">2703-D</dd>
+            </div>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <!--
+        MEMBER / SENSUAL ブロック。ワイヤーの黒い全幅ビジュアル。
+        data-tone="dark" を付けることで、内部の文字色とマウスストーカーの墨が
+        まとめて暗い面用に切り替わる。
+      -->
+      <div class="p-member" data-tone="dark">
+        <img class="p-member__visual" src="assets/img/visual-member.webp" alt=""
+             width="2000" height="1000" loading="lazy" decoding="async">
+        <div class="p-member__scrim" aria-hidden="true"></div>
+
+        <!-- 四隅の符号。情報は持たないので読み上げ対象から外す -->
+        <div class="p-member__marks" aria-hidden="true">
+          <span class="p-member__mark p-member__mark--tl">Geometry</span>
+          <span class="p-member__mark p-member__mark--bl">Form</span>
+          <span class="p-member__mark p-member__mark--tr">No.15 / Specimen</span>
+          <span class="p-member__mark p-member__mark--br">Scale 1:1</span>
+        </div>
+
+        <div class="p-member__inner l-container">
+          <div class="p-member__head c-reveal js-reveal">
+            <h3 class="p-member__title">Member</h3>
+            <div class="p-member__body">
+              <p>
+                パタンナー、染色家、機屋、写真家。
+                Gen は固定のチームを持たず、シーズンごとに必要な技術者と組み直す。
+              </p>
+              <p>
+                今季は静岡の機屋と半年をかけて、
+                糸の張力を意図的に不均一にした生地を開発した。
+                同じ型でも一着ごとに落ち方が違う。
+              </p>
+            </div>
+          </div>
+          <p class="p-member__keyword c-reveal js-reveal c-reveal--d2">SENSUAL</p>
+        </div>
+      </div>
+
+      <div class="l-container">
+        <!--
+          ムービー。
+          【ワイヤーフレームに無い追加要素】掲載必須項目に「ムービー」が含まれるため追加した。
+          ルック（静止画）のあとに置くことで「形 → 動き」の順に見せ、
+          次の Exhibition（会場で実際に見る）への導線にしている。
+
+          実装上の判断：iframe を最初から置かず、ポスター画像＋再生ボタンにしている。
+          YouTubeのiframeは初期表示だけで数百KBの通信とスクリプト実行が発生し、
+          再生しないユーザーにも負担がかかるため（ui.js が押下時にiframeを生成する）。
+          data-movie-src には公開時に実際の埋め込みURLを入れてください。
+        -->
+        <div class="p-collection__movie c-reveal c-reveal--fade js-reveal">
+          <h3 class="u-visuallyHidden">コレクションムービー</h3>
+          <div class="p-movie c-figure c-figure--wide">
+            <img class="p-movie__poster" src="assets/img/movie-poster.webp"
+                 alt="コレクションムービーのサムネイル：暗がりの中で布が揺れる場面"
+                 width="1600" height="900" loading="lazy" decoding="async">
+            <button class="p-movie__play" id="js-moviePlay" type="button"
+                    data-movie-src="https://www.youtube.com/embed/VIDEO_ID?autoplay=1&rel=0">
+              <span class="p-movie__playIcon" aria-hidden="true">▶</span>
+              <span class="p-movie__playLabel">Play movie</span>
+              <span class="u-visuallyHidden">コレクションムービーを再生する（外部サイトの動画が読み込まれます）</span>
+            </button>
+          </div>
+          <p class="c-figure__caption">FILM — “Still Identity” / 2:48</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         EXHIBITION
+         ==================================================================== -->
+    <section class="l-section p-exhibition" id="exhibition" data-tone="dark" aria-labelledby="exhibition-label">
+      <div class="l-container">
+
+        <div class="c-sectionHead">
+          <!-- 【一時変更】Collection を非表示にしているため番号を詰めている（本来は SEC.03） -->
+          <p class="c-label js-sectionLabel" id="exhibition-label" role="heading" aria-level="2">SEC.02 — Exhibition</p>
+          <h2 class="c-sectionTitle c-reveal js-reveal c-reveal--d1" id="exhibition-title" hidden>
+            <span class="c-sectionTitle__mark" aria-hidden="true">::</span><span data-split>Exhibition</span>
+          </h2>
+        </div>
+
+        <!--
+          開催日時。
+          ワイヤーフレームでは「2027.3.XX」と未定表記だったが、
+          カウントダウン・構造化データ・カレンダー登録のすべてが
+          日付を必要とするため、仮の確定日（3月20日）を入れている。
+          日程が決まったら、この time 要素・Heroの data-deadline・
+          head の JSON-LD の3か所を同じ値に更新してください。
+        -->
+        <!-- 【一時変更】開催日も非公開にしました（hidden を外せば戻ります）。
+             時刻は未公開の方針なので、戻すときも dateTime の中身を確認してください。 -->
+        <p class="p-exhibition__date c-reveal js-reveal" hidden>
+          <span class="p-exhibition__dateMain">
+            <time datetime="2027-03-27">2027.03.27</time>
+          </span>
+          <span class="p-exhibition__dateTime">OPEN</span>
+        </p>
+        <!-- ====================================================================
+             【一時変更】会場・チケット・予約フォームは未公開
+             「開催日だけ確定、その他は追って発表」の状態なので、
+             会場名・開催情報リスト・予約フォーム・注意事項の4ブロックに
+             hidden を付けて表示だけ止め、代わりに Coming soon を出しています。
+
+             公開するときは、
+               1. この Coming soon ブロックを削除
+               2. 下の4ブロックから hidden 属性を外す
+               3. head の JSON-LD の location / offers のコメントを外す
+             の3つで元に戻ります。マークアップは何も削っていません。
+             ==================================================================== -->
+        <p class="p-exhibition__coming c-reveal js-reveal c-reveal--d1">
+          <span class="p-exhibition__comingLabel">Coming soon</span>
+          <!--
+          <span class="p-exhibition__comingNote">会場・チケットに関する情報は、決まり次第このページでお知らせします。</span>-->
+        </p>
+
+        <p class="p-exhibition__venue c-reveal js-reveal c-reveal--d1" hidden>
+          TOKYO ARCHIVE HALL（東京都港区海岸 3-0-0）
+        </p>
+
+        <div class="p-exhibition__detail c-reveal js-reveal" hidden>
+          <h3 class="u-visuallyHidden">開催情報</h3>
+          <dl class="c-defList">
+            <div class="c-defList__row">
+              <dt class="c-defList__key">Date</dt>
+              <dd class="c-defList__value">2027年3月27日（土）開場 17:30 / 開演 18:00</dd>
+            </div>
+            <div class="c-defList__row">
+              <dt class="c-defList__key">Venue</dt>
+              <dd class="c-defList__value">TOKYO ARCHIVE HALL / JR田町駅より徒歩 12<span class="c-num__unit">分</span></dd>
+            </div>
+            <div class="c-defList__row">
+              <dt class="c-defList__key">Ticket</dt>
+              <dd class="c-defList__value">一般 <span class="c-num__currency">¥</span>6,000 / 学生 <span class="c-num__currency">¥</span>3,000（当日学生証をご提示ください）</dd>
+            </div>
+            <div class="c-defList__row">
+              <dt class="c-defList__key">Capacity</dt>
+              <dd class="c-defList__value">180<span class="c-num__unit">席</span>（全席自由）</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- チケット予約 -->
+        <div class="p-exhibition__ticket" hidden>
+          <p class="p-exhibition__ticketLead c-reveal js-reveal">ご予約はこちら</p>
+
+          <!--
+            Googleフォームの埋め込み枠。
+            現在はプレースホルダを表示している。公開時は下のコメントを参考に
+            iframe へ差し替えてください（枠の高さは CSS 側で先に確保してあるので、
+            差し替えてもレイアウトはずれません）。
+
+            差し替え例：
+            <iframe class="c-embed__frame"
+                    src="https://docs.google.com/forms/d/e/【フォームID】/viewform?embedded=true"
+                    title="チケット予約フォーム" loading="lazy">読み込んでいます…</iframe>
+
+            ※ iframe には必ず title を付けてください。
+              スクリーンリーダーは title を「この枠が何か」として読み上げます。
+            ※ loading="lazy" を付けると、画面に近づくまで読み込まれません。
+          -->
+          <div class="c-embed p-exhibition__embed c-reveal c-reveal--fade js-reveal" data-tone="dark">
+            <div class="c-embed__placeholder">
+              <p>GOOGLE FORM EMBED AREA</p>
+              <p>チケット予約フォームをここに埋め込みます</p>
+            </div>
+          </div>
+
+          <!-- 予約前に読む必要のある注意事項なので、フォームの後ではなく直後に置く -->
+          <ul class="p-exhibition__notes c-reveal js-reveal">
+            <li>ご予約は1回のお申し込みにつき4名様までとなります。</li>
+            <li>ご入力いただいたメールアドレス宛に、受付確認メールを自動送信します。</li>
+            <li>車椅子でご来場の方は、お問い合わせフォームより事前にご連絡ください。座席をご用意します。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         RESEARCH RECORD 03
+         配置：開催日時の後。
+
+         【見出しは打ち出さず、本文だけを打ち出す理由】
+         研究記録の用紙に例えると、見出しと STATUS 欄は「用紙に印刷済みの項目」、
+         本文は「研究員がこれから書き込む内容」にあたる。
+         見出しまで打ち出すと、何の記録なのかが分かるまで待たされてしまう。
+
+         本文の改行は、いただいた原稿の改行位置をそのまま保持しています
+         （CSS の white-space: pre-wrap で、書いたとおりに改行されます）。
+         文言を直すときは、この中を書き換えるだけで動きます。
+         ==================================================================== -->
+    <section class="l-section l-section--tight p-record p-record--observing" id="record-03" data-tone="dark"
+             aria-labelledby="record-03-title">
+      <div class="l-container l-container--narrow">
+
+        <div class="p-record__head c-reveal js-reveal">
+          <h2 class="p-record__title" id="record-03-title">RESEARCH RECORD 03</h2>
+          <p class="p-record__status" data-status="observing">
+            <!-- 状態を示す小さな点。色は変えず、点滅の仕方だけで3つの状態を書き分けている
+                 （パレットに色を足さずに差を出すため。意味は必ず文字でも書く） -->
+            <span class="p-record__statusDot" aria-hidden="true"></span>
+            STATUS : OBSERVING
+          </p>
+        </div>
+
+        <!--
+          data-typewriter      … この塊を1文字ずつ打ち出す（assets/js/typewriter.js）
+          data-type-speed      … 1文字あたりのミリ秒。大きくすると遅くなる
+          data-type-caret      … keep にすると、打ち終わったあともカーソルが点滅し続ける
+                                 （「まだ書き込んでいる途中」に見せるため）
+        -->
+        <div class="p-record__body c-type" data-typewriter data-type-speed="26" data-type-caret="keep">
+          <p class="c-type__line">
+          当研究所は、崩壊した静物を
+          元の状態へ戻すことを目的としない。
+          観測し、記録し、分類し、命名する。
+          新たな定義を与えることで、
+          再び二つのアイデンティティーを成立させる。
+          </p>
+        </div>
+
+        <!--
+          記録の属性（用紙の下端にある記入欄にあたる）。
+          STATUS と同じく世界観の一部で、単なる装飾ではない。
+          REC.（記録の状態）が 01→03 で CLOSED → CLOSED → OPEN と変わり、
+          03 だけ試料番号が欠落している。説明は加えず、値の差だけで示している。
+        -->
+        <p class="p-record__meta c-reveal js-reveal c-reveal--d1">
+            <span>SPEC. <span class="p-record__redact" aria-hidden="true">███</span><span class="u-visuallyHidden">（記録欠落）</span></span>
+            <span>OBS. 2027.03.20 —</span>
+            <span>REC. OPEN</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         JOURNAL
+         ==================================================================== -->
+    <!-- ====================================================================
+         【一時非表示】JOURNAL（Collection と同じ扱い。hidden を外せば戻ります）
+         ==================================================================== -->
+    <section class="l-section p-journal" id="journal" data-tone="dark" aria-labelledby="journal-label" hidden>
+      <div class="l-container">
+
+        <div class="c-sectionHead">
+          <p class="c-label js-sectionLabel" id="journal-label" role="heading" aria-level="2">SEC.04 — Journal</p>
+          <h2 class="c-sectionTitle c-reveal js-reveal c-reveal--d1" id="journal-title" hidden>
+            <span class="c-sectionTitle__mark" aria-hidden="true">::</span><span data-split>Journal</span>
+          </h2>
+        </div>
+
+        <!-- 制作背景 -->
+        <div class="p-journal__block u-mt-24">
+          <div class="p-journal__blockHead c-reveal js-reveal">
+            <h3 class="c-sectionTitle c-sectionTitle--sub">Behind log</h3>
+          </div>
+
+          <div class="p-journal__body">
+            <figure class="c-figure c-figure--wide c-figure--zoom p-journal__figure c-reveal js-reveal">
+              <img class="c-figure__img" data-parallax="5" src="assets/img/journal-02.webp"
+                   alt="染め上がった生地を天日に干している様子"
+                   width="900" height="1350" loading="lazy" decoding="async">
+            </figure>
+
+            <div class="p-journal__list c-reveal js-reveal c-reveal--d1">
+              <dl class="c-newsList c-newsList--ruled">
+                <div class="c-newsList__item">
+                  <dt class="c-newsList__date"><time datetime="2027-02-14">2027.02.14</time></dt>
+                  <dd class="c-newsList__body">
+                    <!-- リンク先は記事詳細ページ。今回のLPの範囲外のため # のままにしている。
+                         ブログを用意したら href を差し替えてください。 -->
+                    <a class="c-newsList__link" href="#journal">糸の張力を揃えないという選択について</a>
+                  </dd>
+                </div>
+                <div class="c-newsList__item">
+                  <dt class="c-newsList__date"><time datetime="2027-01-28">2027.01.28</time></dt>
+                  <dd class="c-newsList__body">
+                    <a class="c-newsList__link" href="#journal">静岡の機屋を訪ねた三日間</a>
+                  </dd>
+                </div>
+                <div class="c-newsList__item">
+                  <dt class="c-newsList__date"><time datetime="2026-12-09">2026.12.09</time></dt>
+                  <dd class="c-newsList__body">
+                    <a class="c-newsList__link" href="#journal">パターン15体、最初のトワルができるまで</a>
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        <!-- ニュース。画像とリストの左右を入れ替える -->
+        <div class="p-journal__block p-journal__block--reverse">
+          <div class="p-journal__blockHead c-reveal js-reveal">
+            <h3 class="c-sectionTitle c-sectionTitle--sub">Information</h3>
+          </div>
+
+          <div class="p-journal__body">
+            <figure class="c-figure c-figure--wide c-figure--zoom p-journal__figure c-reveal js-reveal">
+              <img class="c-figure__img" src="assets/img/journal-01.webp"
+                   alt="会場に搬入された什器と、床に置かれた案内サイン"
+                   width="900" height="1350" loading="lazy" decoding="async">
+            </figure>
+
+            <div class="p-journal__list c-reveal js-reveal c-reveal--d1">
+              <dl class="c-newsList c-newsList--ruled">
+                <div class="c-newsList__item">
+                  <dt class="c-newsList__date"><time datetime="2026-10-11">2026.10.11</time></dt>
+                  <dd class="c-newsList__body">オフィシャルサイトを公開しました</dd>
+                </div>
+                <!--<div class="c-newsList__item">
+                  <dt class="c-newsList__date"><time datetime="2026-11-30">2026.11.30</time></dt>
+                  <dd class="c-newsList__body">チケットの予約販売を開始しました</dd>
+                </div>
+                <div class="c-newsList__item">
+                  <dt class="c-newsList__date"><time datetime="2027-01-20">2027.01.20</time></dt>
+                  <dd class="c-newsList__body">ルックブックの一部を公開しました</dd>
+                </div>-->
+              </dl>
+              <p class="p-journal__more">
+                <a class="c-button c-button--text" href="#journal">
+                  View all<span class="c-button__arrow" aria-hidden="true">→</span>
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         CONTACT
+         ==================================================================== -->
+    <section class="l-section p-contact" id="contact" data-tone="dark" aria-labelledby="contact-label">
+      <div class="l-container">
+
+        <div class="c-sectionHead c-sectionHead--start">
+          <!-- 【一時変更】本来は SEC.05 -->
+          <p class="c-label js-sectionLabel" id="contact-label" role="heading" aria-level="2">SEC.03 — Contact</p>
+          <h2 class="c-sectionTitle c-sectionTitle--start c-reveal js-reveal c-reveal--d1" id="contact-title" hidden>
+            <span class="c-sectionTitle__mark" aria-hidden="true">::</span><span data-split>Contact</span>
+          </h2>
+        </div>
+
+        <p class="c-text c-text--weak p-contact__lead c-reveal js-reveal">
+          取材・受注・協業のご相談、その他のお問い合わせはこちらから。
+        </p>
+
+        <!--
+          novalidate：ブラウザ既定のエラー吹き出しを止め、自前のメッセージに統一するための指定。
+          JSが動かない環境では novalidate が効いたまま送信されてしまうため、
+          各入力欄には required / type="email" を必ず残し、
+          サーバー側でも同じ検証を行う前提で設計している。
+        -->
+        <!-- 【一時非公開】フォームは u-hidden で隠しています。
+             復活させるときは、この form の class から u-hidden を外し、
+             下の p-contact__mail--solo から --solo を外すだけです。
+             display:none なので、隠れている間は入力欄に Tab でも入れません。 -->
+        <form class="c-form p-contact__form u-hidden" id="js-contactForm" novalidate>
+
+          <div class="c-form__field c-reveal js-reveal">
+            <label class="c-form__label" for="field-name">
+              Name
+              <span class="c-form__required" aria-hidden="true">*</span>
+              <span class="u-visuallyHidden">（必須）</span>
+            </label>
+            <input class="c-form__input" type="text" id="field-name" name="name"
+                   autocomplete="name" required maxlength="100">
+            <!-- エラーメッセージの入れ物。
+                 role="alert" を付けると、テキストが入った瞬間に読み上げられる。 -->
+            <p class="c-form__error" id="error-name" role="alert"></p>
+          </div>
+
+          <div class="c-form__field c-reveal js-reveal">
+            <label class="c-form__label" for="field-email">
+              Email
+              <span class="c-form__required" aria-hidden="true">*</span>
+              <span class="u-visuallyHidden">（必須）</span>
+            </label>
+            <!-- type="email" にすると、モバイルで @ のあるキーボードが出る（入力の手間が減る） -->
+            <input class="c-form__input" type="email" id="field-email" name="email"
+                   autocomplete="email" required maxlength="254" inputmode="email">
+            <p class="c-form__error" id="error-email" role="alert"></p>
+          </div>
+
+          <div class="c-form__field c-reveal js-reveal">
+            <label class="c-form__label" for="field-subject">Subject</label>
+            <input class="c-form__input" type="text" id="field-subject" name="subject" maxlength="120">
+            <p class="c-form__error" id="error-subject" role="alert"></p>
+          </div>
+
+          <div class="c-form__field c-reveal js-reveal">
+            <label class="c-form__label" for="field-message">
+              Message
+              <span class="c-form__required" aria-hidden="true">*</span>
+              <span class="u-visuallyHidden">（必須）</span>
+            </label>
+            <textarea class="c-form__textarea" id="field-message" name="message"
+                      required maxlength="2000" rows="6"></textarea>
+            <p class="c-form__error" id="error-message" role="alert"></p>
+          </div>
+
+          <p class="c-form__note">
+            送信いただいた個人情報は、お問い合わせへの回答のみに使用します。
+          </p>
+
+          <!--
+            role="status" … 内容が変わったときに、操作を中断させずに読み上げる領域。
+            送信結果のような「急がないが伝えたい」通知に適している。
+            （role="alert" は割り込みが強いため、エラー個別表示にだけ使っている）
+          -->
+          <p class="c-form__status" id="js-formStatus" role="status" aria-live="polite"></p>
+
+          <button class="c-button c-button--primary c-button--block" type="submit">
+            送信する<span class="c-button__arrow" aria-hidden="true">→</span>
+          </button>
+        </form>
+
+        <!-- 連絡手段。フォームを隠しているあいだは、ここが唯一の窓口になる。
+             --solo は「フォームが無い状態」用の modifier で、文字を大きく出す。
+             フォームを戻すときは --solo を外すと元の控えめな表示に戻る。 -->
+        <p class="p-contact__mail p-contact__mail--solo">
+          <a class="p-contact__mailLink u-breakWord" href="mailto:contact@example.com">contact@example.com</a>
+        </p>
+
+        <!--
+          SNS。
+          ご支給のロゴ画像を丸いボタンの中に置いている。
+          【alt を空にしている理由】
+          リンクの名前は隣の u-visuallyHidden が持っている。
+          画像にも alt を書くと「Instagram Instagram」と二重に読み上げられるため、
+          画像側は装飾扱い（alt="")にしている。
+          width / height は実寸。表示サイズはCSSで決めるが、
+          属性を書いておくと読み込み前に場所が確保され、レイアウトがずれない。
+        -->
+        <div class="p-contact__sns c-reveal js-reveal">
+          <h3 class="c-sns__title">Gen Social Media</h3>
+          <ul class="c-sns">
+            <li>
+              <a class="c-sns__link" href="https://www.instagram.com/gen_kimola" target="_blank" rel="noopener noreferrer">
+                <img class="c-sns__img" src="assets/img/sns_instagram.png" alt=""
+                     width="608" height="603" loading="lazy" decoding="async">
+                <!-- リンク名を音声で伝える。「別ウィンドウで開く」ことも明記する -->
+                <span class="u-visuallyHidden">Instagram（新しいタブで開きます）</span>
+              </a>
+            </li>
+            <li>
+              <a class="c-sns__link" href="https://x.com/genkimola" target="_blank" rel="noopener noreferrer">
+                <img class="c-sns__img" src="assets/img/sns_x.png" alt=""
+                     width="573" height="553" loading="lazy" decoding="async">
+                <span class="u-visuallyHidden">X（新しいタブで開きます）</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         エンドコメント
+         見出しを持たないため、aria-label でセクションの名前だけ与えています
+         （名前のないランドマークは、読み上げの一覧で「section」としか出ないため）。
+
+         ページの最後の言葉なので、打ち終わってもカーソルを残しています
+         （data-type-caret="keep"）。記録がまだ続いていることの示唆です。
+         ==================================================================== -->
+    <section class="l-section l-section--tight p-endnote" id="endnote" data-tone="dark"
+             aria-label="結びのことば">
+      <div class="l-container l-container--narrow">
+        <div class="p-endnote__body c-type" data-typewriter data-type-speed="28" data-type-caret="keep">
+          <p class="c-type__line">
+          それは救済なのか。
+          あるいは、
+          新たな社会的圧力なのか。
+          定義なしに、存在は成立するのか。
+          この世界では、
+          定義から逃げ切ることはできない。
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================================
+       フッター
+       ====================================================================== -->
+  <footer class="l-footer" data-tone="dark">
+    <div class="l-footer__ink c-breathe c-breathe--slow" aria-hidden="true"></div>
+
+    <div class="l-footer__inner l-container">
+      <div>
+        <!-- Heroと同じカウンター。data-countdown が付いた要素はすべて countdown.js が更新する -->
+        <p class="l-footer__counter c-num" data-countdown data-deadline="2027-03-27T00:00:00+09:00">000:00:00</p>
+        <p class="c-label c-label--noRule u-mt-4">Until <span class="c-num">2027.03.20 18:00</span></p>
+      </div>
+
+      <nav class="l-footer__nav" aria-label="フッターナビゲーション">
+        <ul>
+          <li><a href="#designer">Designer</a></li>
+          <!-- 【一時非表示】Collection 公開時にコメントを外す
+          <li><a href="#collection">Collection</a></li>
+          -->
+          <li><a href="#exhibition">Exhibition</a></li>
+          <!-- 【一時非表示】Journal 公開時にコメントを外す
+          <li><a href="#journal">Journal</a></li>
+          -->
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+
+      <p class="l-footer__copyright">
+        <!-- 記号「©」は読み上げが環境依存なので、文字列としての年号とブランド名を明示する -->
+        © 2026 Gen. All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ======================================================================
+       JavaScript
+       defer を付ける理由：
+       ・HTMLの解析を止めずにダウンロードできる（表示が速くなる）
+       ・実行はHTMLの解析完了後なので、DOMContentLoaded を待つ記述が不要になる
+       ・書いた順に実行されるため、依存関係がある場合も順序が保証される
+       body の最後に置いているのは、defer 非対応の古いブラウザでも
+       同じ動作（HTML解析後に実行）になるようにするため。
+       ====================================================================== -->
+  <!-- 演出のオン／オフ設定。他のJSより先に読み込む必要がある -->
+  <script src="assets/js/motion-config.js" defer></script>
+
+  <script src="assets/js/ui.js" defer></script>
+  <script src="assets/js/reveal.js" defer></script>
+  <script src="assets/js/section-label.js" defer></script>
+  <script src="assets/js/countdown.js" defer></script>
+  <script src="assets/js/form.js" defer></script>
+  <script src="assets/js/ink-stalker.js" defer></script>
+  <script src="assets/js/motion.js" defer></script>
+  <script src="assets/js/loader.js" defer></script>
+  <script src="assets/js/cursor-label.js" defer></script>
+  <script src="assets/js/typewriter.js" defer></script>
+</body>
+</html>

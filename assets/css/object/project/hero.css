@@ -1,0 +1,277 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Object / Project / hero.css  →  .p-hero
+ * ----------------------------------------------------------------------------
+ * FLOCSS の Object > Project 層。
+ * 「このページのこの場所にしか存在しない、意味を持った塊」を置くレイヤー。
+ * Hero は他セクションに流用しない固有の構成物なので p- を付けている。
+ * ========================================================================== */
+
+.p-hero {
+  position: relative;
+  /* 100vh ではなく 100svh を使う理由：
+   * モバイルのブラウザはアドレスバーの表示／非表示で表示領域が伸縮する。
+   * 100vh はバーが出ている状態でも「バーが無い前提の高さ」になるため、
+   * 初期表示で下端が隠れてしまう。svh（small viewport height）は
+   * バーが出ている状態の高さを指すので、必ず画面に収まる。
+   * 非対応ブラウザ向けに先に 100vh を書き、対応ブラウザが後勝ちで上書きする。 */
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  align-content: center;
+  overflow: hidden;
+  isolation: isolate;
+  padding-block: calc(var(--header-height) + var(--space-8)) var(--space-16);
+}
+
+/* 背景の墨。
+ * 装飾ではなく「Heroの主役ビジュアル」なので、背景画像ではなく img 要素で置く。
+ * 理由：img ならブラウザのプリロードスキャナが早期に発見して読み込みを開始でき、
+ * LCP（最大要素の描画時間）が改善する。CSSの background-image は
+ * CSSを解析し終わるまで読み込みが始まらない。 */
+.p-hero__ink {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 32%;    /* 墨の濃い部分が画面上部に来るよう位置を寄せている */
+
+  /* 墨は紙白ベースの素材のため、そのままでは中間調が多く、
+   * 上に乗る白文字とのコントラスト比が 4.5:1 を下回る箇所が出る。
+   * 画像そのものを加工して差し替えづらくするのではなく、
+   * CSSで暗く沈めて「暗い面」として成立させる。
+   * 差し替え画像が明るくても暗くても、同じ処理で同じ暗さに寄せられるのが利点。 */
+  filter: brightness(0.52) contrast(1.12) saturate(1.1);
+}
+
+/* 墨の上に文字を置くと、濃淡によって読めたり読めなかったりする。
+ * 画像側を暗く加工してしまうと差し替え時に同じ調整が必要になるため、
+ * CSSのグラデーション1枚を重ねて可読性を担保する方式にした。
+ * 上下を濃く、中央を薄くしているのは、
+ * 文字が置かれる上端（ナビ）と下端（ニュース）を確実に沈めるため。 */
+.p-hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* 墨が黒地版（暗い水の中で光る墨）になったため、
+   * かぶせる黒は以前より薄くしている。
+   * 上端はヘッダーの文字、下端は次のセクションへの溶け込みのために残し、
+   * 中央（墨を見せたい帯）は 0.14 まで抜いた。 */
+  background:
+    linear-gradient(to bottom,
+      rgba(8, 9, 10, 0.50) 0%,
+      rgba(8, 9, 10, 0.14) 36%,
+      rgba(8, 9, 10, 0.26) 68%,
+      rgba(8, 9, 10, 0.86) 100%);
+}
+
+.p-hero__inner {
+  position: relative;
+  display: grid;
+  gap: var(--space-8);
+  justify-items: center;
+  text-align: center;
+  color: var(--color-text-on-dark);
+}
+
+/* ブランド名。
+ * ページ内で唯一の h1。
+ * font-weight を 300 相当（Arialなら normal）に抑え、字間を詰めているのは、
+ * 大きさで存在感を出し、太さでは主張しないという方針のため。
+ * line-height:0.9 は、大きな文字の上下に生まれる無駄な余白を削って
+ * 文字そのものの塊として見せるための値。 */
+.p-hero__title {
+  /* 中身が画像になったので、文字まわりの指定は落としてある。
+   * margin を 0 にしているのは、h1 の既定マージンで
+   * 墨のビジュアルとの位置関係がずれないようにするため。 */
+  margin: 0;
+  line-height: 0;             /* 画像の下に生まれる行の余白（ディセンダ分）を消す */
+}
+
+/* ロゴセット（シンボル＋ロゴタイプ）。
+ * ----------------------------------------------------------------------------
+ * 【幅ではなく高さで大きさを決めている理由】
+ * このロゴは縦長（321 × 511）。幅を基準にすると、画面が広いときに
+ * 縦に伸びすぎてファーストビューからはみ出す。
+ * 画面の高さに連動させると、どの画面でも「ヒーローに収まる大きさ」に落ち着く。
+ *
+ * 【clamp の下限・上限】
+ * 下限 9rem … これより小さいとシンボルの細い線が潰れる
+ * 上限 22rem … これより大きいと、下に置いた最新情報やカウンターと詰まる
+ *
+ * 【drop-shadow を使う理由】
+ * 文字だった頃は text-shadow で輪郭を保っていた。
+ * 画像では text-shadow が効かないため、
+ * 透過部分の形に沿って影を落とす drop-shadow に置き換えている
+ * （box-shadow だと画像の四角い枠に影が付いてしまう）。 */
+.p-hero__logo {
+  display: block;
+  /* 【サイズを上げた理由】
+   * ご要望によりアイコンを大きく。下限 9rem → 11rem、上限 22rem → 30rem。
+   * 可変部の係数も 18vh → 24vh に上げ、背の高い画面ほど大きく見せる。
+   * 上限を 30rem で止めているのは、これ以上大きくすると
+   * 下に置いたカウントダウンとの間が詰まり、2つの塊が1つに見えてしまうため。 */
+  height: clamp(11rem, 6rem + 24vh, 30rem);
+  width: auto;
+  filter: drop-shadow(0 0 40px rgba(8, 9, 10, 0.55));
+}
+
+/* カウントダウン。
+ * 等幅数字が要点。字幅の違うフォントだと、分が変わるたびに桁の位置が動いてしまう。
+ * （数値ルール1／定義と理由は component/numeric.css） */
+.p-hero__counter {
+  font-variant-numeric: tabular-nums slashed-zero;
+  /* 開催までの残り時間はドット書体。計器の表示に見せるため。
+   * サイズを clamp で連続変化させず2段階に切っているのは、
+   * ドット書体が半端な倍率でぼやけるため（理由は component/typewriter.css）。 */
+  font-family: var(--font-dot);
+  /* 16px グリッドのドット書体なので、サイズは16の倍数から選ぶ。
+   * ご要望により 1.5rem(24px) → 2rem(32px) に拡大。 */
+  font-size: 2rem;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  color: rgba(239, 239, 233, 0.72);
+}
+
+/* カウンターの単位表記（DAYS / HOURS …）。
+ * 数字だけでは何の時間か伝わらないため、小さな等幅ラベルを添える。
+ * ワイヤーには無い追加だが、情報の意味が分からない表示は
+ * 「世界観を説明しすぎない」とは別の問題（＝ただの不親切）と判断した。 */
+@media (min-width: 768px) {
+  .p-hero__counter {
+    font-size: 3rem;           /* 16px の3倍。ドットが最も整う */
+  }
+}
+
+.p-hero__counterUnits {
+  display: flex;
+  justify-content: center;
+  gap: clamp(1.1rem, 0.4rem + 2.6vw, 2.6rem);
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.2em;
+  color: rgba(239, 239, 233, 0.45);
+}
+
+/* ニュース。
+ * Heroに最新情報を置くのはワイヤーの指定どおり。
+ * text-align:left に戻しているのは、日付つきの一覧は
+ * 行頭が揃っていないと視線が追えないため。 */
+.p-hero__news {
+  width: 100%;
+  max-width: 26rem;
+  text-align: left;
+  color: rgba(239, 239, 233, 0.88);
+}
+
+.p-hero__news .c-newsList__date {
+  color: rgba(239, 239, 233, 0.55);
+}
+
+.p-hero__news .c-newsList__body {
+  color: inherit;
+}
+
+/* 「and more」。右寄せにして一覧の終わりを示す */
+.p-hero__more {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-3);
+  color: rgba(239, 239, 233, 0.75);
+}
+
+/* スクロールを促す線。
+ * 「↓」などの記号ではなく1本の線が伸び縮みする表現にしたのは、
+ * 記号は言語的な指示になり、静かな画面の中で浮くため。 */
+.p-hero__scroll {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-6);
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.24em;
+  color: rgba(239, 239, 233, 0.55);
+}
+
+.p-hero__scrollLine {
+  display: block;
+  width: 1px;
+  height: 3.5rem;
+  background-color: rgba(239, 239, 233, 0.4);
+  transform-origin: 50% 0;
+  animation: p-hero-scroll 2.6s var(--ease) infinite;
+}
+
+/* 上から下へ線が走る。
+ * scaleY のみを動かしているのは、transform は再レイアウトを起こさず
+ * 合成だけで処理されるため、常時ループさせても負荷が小さいから。 */
+@keyframes p-hero-scroll {
+  0%   { transform: scaleY(0); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: scaleY(1); opacity: 0; }
+}
+
+/* --------------------------------------------------------------------------
+ * 768px 以上：ワイヤーに近い「右にロゴ／左にニュース」の非対称レイアウトへ
+ * 中央揃えのままPCで見ると、余白が均等に散って構図が弱くなるため。
+ * ------------------------------------------------------------------------ */
+@media (min-width: 768px) {
+  .p-hero__inner {
+    justify-items: stretch;
+    text-align: right;
+    /* 2カラム。左をニュース、右をロゴに割り当てる。
+     * 1.1fr / 1fr と少しだけ差を付けているのは、
+     * 完全な均等分割だと「わずかな違和感」が消えて図式的に見えるため。 */
+    grid-template-columns: 1.1fr 1fr;
+    grid-template-areas:
+      ".    title"
+      "news counter";
+    align-items: end;
+    gap: var(--space-12) var(--space-8);
+  }
+
+  .p-hero__titleBlock { grid-area: title; }
+
+  /* 【ロゴを親コンテナの右端に揃える】
+   * img は display:block なので、親（h1）の text-align:right では動かない。
+   * ブロック要素を右へ寄せるのは margin-left:auto が定石。
+   * 寄せ先は h1 の右端＝グリッド右カラムの右端＝器（l-container）の右端なので、
+   * 他の要素（カウントダウン・SCROLL）と同じ縦のラインに揃う。
+   *
+   * 767px 以下で指定していない理由：
+   * 狭い画面では .p-hero__inner が justify-items:center で
+   * ニュース・カウンターごと中央に寄せている。
+   * ロゴだけ右に振ると、下の要素との軸が合わずに崩れて見えるため。 */
+  .p-hero__logo {
+    margin-left: auto;
+  }
+  .p-hero__counterBlock { grid-area: counter; text-align: right; }
+  .p-hero__counterUnits { justify-content: flex-end; }
+
+  /* カウントダウンを 16px の3倍に。ドットが最も整うサイズ。
+   * clamp で連続的に変えず2段階に切っている理由は component/typewriter.css 参照。 */
+  .p-hero__counter {
+    font-size: 3rem;
+  }
+
+  .p-hero__news {
+    grid-area: news;
+    align-self: end;
+    max-width: 24rem;
+  }
+}
+
+/* 1024px 以上：ロゴをさらに大きく、余白を深く取る */
+@media (min-width: 1024px) {
+  .p-hero__inner {
+    gap: var(--space-16) var(--space-12);
+  }
+}

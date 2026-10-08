@@ -1,0 +1,272 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Object / Project / record.css  →  .p-record / .p-endnote
+ * ----------------------------------------------------------------------------
+ * 架空の研究所が公開している「研究記録」の断片。
+ * ページの3か所に分けて置き、スクロールするほど研究内容が明らかになる構成。
+ *
+ * 【見た目の考え方：用紙と書き込みを分ける】
+ * 研究記録の用紙に例えると、
+ *   ・見出し（RESEARCH RECORD 01）と STATUS 欄 … 用紙に印刷済みの項目
+ *   ・本文                                      … 研究員がこれから書き込む内容
+ * この2つは別物なので、書体・大きさ・色をはっきり分けている。
+ * 見出しを等幅・小さく・淡くし、本文を読みやすい大きさで置くことで、
+ * 「書式の中に、人が書いた言葉が入っている」という関係が一目で伝わる。
+ *
+ * 【装飾を足していない理由】
+ * 枠線で囲む、用紙の質感を敷く、といった演出は一度やると全ページに波及し、
+ * 「研究所ごっこ」に見えやすい。
+ * ここでは罫線1本と小さな点だけに留め、世界観は文章そのものに語らせている。
+ * ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+ * セクションの発光位置（定義は layout/main.css の .l-section::before）
+ * 記録ごとに光の位置をずらして、3つが同じ画面に見えないようにしている。
+ * -------------------------------------------------------------------------- */
+#record-01 { --glow-x: 30%; --glow-y: 24%; --glow-x2: 76%; --glow-y2: 72%; }
+#record-02 { --glow-x: 72%; --glow-y: 68%; --glow-x2: 24%; --glow-y2: 26%; }
+#record-03 { --glow-x: 26%; --glow-y: 62%; --glow-x2: 78%; --glow-y2: 30%; }
+#endnote   { --glow-x: 50%; --glow-y: 50%; --glow-x2: 50%; --glow-y2: 50%; }
+
+/* ----------------------------------------------------------------------------
+ * 見出し部（用紙に印刷済みの項目にあたる）
+ * -------------------------------------------------------------------------- */
+.p-record__head {
+  display: flex;
+  flex-wrap: wrap;             /* 狭い画面では STATUS が下へ回り込む */
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-6);
+
+  padding-bottom: var(--space-3);
+  /* 下の罫線は「記入欄の上辺」。実線1本だけに留めている */
+  border-bottom: 1px solid var(--color-line);
+}
+
+.p-record__title {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.26em;      /* 等幅＋広い字間で、文章ではなく「項目名」に見せる */
+  line-height: 1.6;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.p-record__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.2em;
+  color: var(--color-text-weak);
+  margin: 0;
+}
+
+/* 状態を示す小さな点。
+ * 【色を変えない理由】
+ * 赤・黄・緑で状態を示すのは分かりやすい反面、このサイトのパレットから浮く。
+ * また色だけで意味を伝えると、色覚特性のある方に届かない。
+ * ここでは「点滅の仕方」で3つの状態を書き分け、
+ * 意味そのものは必ず文字（STATUS : STABLE など）でも示している。 */
+.p-record__statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+/* STABLE … 点灯したまま動かない（安定している） */
+[data-status="stable"] .p-record__statusDot {
+  opacity: 0.9;
+}
+
+/* UNSTABLE … ゆっくり明滅する（均衡が揺れている） */
+[data-status="unstable"] .p-record__statusDot {
+  animation: p-recordPulse 2.4s ease-in-out infinite;
+}
+
+/* OBSERVING … 一定間隔で短く光る（観測が続いている） */
+[data-status="observing"] .p-record__statusDot {
+  animation: p-recordBlink 1.6s steps(1, end) infinite;
+}
+
+@keyframes p-recordPulse {
+  0%, 100% { opacity: 0.9; transform: scale(1); }
+  50%      { opacity: 0.25; transform: scale(0.82); }
+}
+
+@keyframes p-recordBlink {
+  0%, 62%  { opacity: 0.9; }
+  63%, 100% { opacity: 0.2; }
+}
+
+/* ----------------------------------------------------------------------------
+ * 本文（研究員が書き込む内容）
+ * -------------------------------------------------------------------------- */
+.p-record__body {
+  margin-top: var(--space-8);
+
+  /* サイズは component/typewriter.css 側で 16px 固定（ドット書体のため）。
+   * ここでは行間・字間だけを受け持つ。 */
+  /* 行間。原稿の改行をそのまま1行として使うため、通常の本文より広めではあるが、
+   * 2.4 では行同士が離れすぎて「1つの記録」ではなく「並んだ短文」に見えてしまっていた。
+   * 2.0 まで詰めると、短い行が続いても塊として読める。 */
+  line-height: 2;
+  letter-spacing: 0.08em;      /* わずかに開けて、打鍵された文字の並びに見せる */
+  color: var(--color-text);
+}
+
+/* ----------------------------------------------------------------------------
+ * 記録の属性（用紙の下端の記入欄）
+ * ----------------------------------------------------------------------------
+ * 試料番号・観測日・記録の状態。本文のあとに置いている。
+ * 情報量そのものが 01→03 で減っていくので、
+ * 「研究が進むほど記録が欠けていく」ことを文章で説明せずに示せる。
+ * -------------------------------------------------------------------------- */
+.p-record__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em 2.4em;
+  margin: var(--space-8) 0 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-line);
+
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.16em;
+  line-height: 1.8;
+  color: var(--color-text-weak);
+  font-variant-numeric: tabular-nums slashed-zero;   /* 数値ルール1 */
+}
+
+/* 伏せられた値。
+ * 文字（█）で描いているのは、背景を塗った矩形だと
+ * 「空欄」ではなく「装飾」に見えてしまうため。
+ * 読み上げには「（記録欠落）」という隠しテキストを別に用意している。 */
+.p-record__redact {
+  letter-spacing: -0.04em;      /* ブロック同士を詰めて、塗り潰しの帯に見せる */
+}
+
+/* ----------------------------------------------------------------------------
+ * 3つの記録の状態差
+ * ----------------------------------------------------------------------------
+ * 「研究が進むにつれて記録が不安定になる」ことを、
+ * 文章で説明せず、罫線・位置・情報量の3点だけで示す。
+ * 奇抜に崩すと資料としての説得力が落ちるため、変化幅はどれも小さく取っている。
+ *
+ *   01 STABLE    … 実線の罫線／基準位置／属性がすべて埋まっている
+ *   02 UNSTABLE  … 破線の罫線／わずかに右へずれる／行間がわずかに広い
+ *   03 OBSERVING … 罫線が右端で消える／左へ戻る／属性が欠落している
+ * -------------------------------------------------------------------------- */
+
+/* 02：罫線が破線になる。
+ * 「引き直した線」「途切れた線」に見えるので、安定していない記録の表情になる。
+ *
+ * 【border-style ではなく border-bottom-style / border-top-style と書く理由】
+ * border-style だけを指定すると、幅を指定していない残り3辺にも
+ * 既定の太さ（medium ＝ 3px）が復活して、枠線で囲まれてしまう。
+ * 線を引いている辺だけを名指しする必要がある。 */
+.p-record--unstable .p-record__head {
+  border-bottom-style: dashed;
+}
+
+.p-record--unstable .p-record__meta {
+  border-top-style: dashed;
+}
+
+/* 02：本文の行間と字間をわずかに広げる。
+ * 数値を大きく変えず、01 と並べたときにだけ「少し緩い」と分かる程度に留めている。 */
+.p-record--unstable .p-record__body {
+  line-height: 2.12;           /* 01（2.0）よりわずかに広い。並べたときだけ分かる差に留める */
+  letter-spacing: 0.1em;
+}
+
+/* 03：罫線が右へ向かって消える。
+ * border ではなく背景のグラデーションで描いているのは、
+ * border には「途中から透明にする」指定が無いため。 */
+.p-record--observing .p-record__head,
+.p-record--observing .p-record__meta {
+  border-color: transparent;
+  background-image: linear-gradient(
+    90deg,
+    var(--color-line) 0%,
+    var(--color-line) 52%,
+    transparent 100%
+  );
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+}
+
+.p-record--observing .p-record__head { background-position: 0 100%; }  /* 下辺に引く */
+.p-record--observing .p-record__meta { background-position: 0 0; }     /* 上辺に引く */
+
+/* 03：本文の幅を狭める＝1行に入る情報が減る。
+ * 原稿の改行位置は変わらないので文章は崩れず、
+ * 「紙面が痩せた」印象だけが残る。 */
+.p-record--observing .p-record__body {
+  max-width: 30em;
+}
+
+/* 横位置のずれは 1024px 以上でだけ効かせる。
+ * 【768px ではなく 1024px にした理由】
+ * 本文の器（.l-container--narrow）は最大 760px。
+ * 画面幅が 768px のときは器がほぼ画面いっぱいになり、
+ * そこから 4% ずらすと画面の外へ 26px はみ出してしまう（実測）。
+ * 器の左右に余白が生まれる 1024px 以上でだけ動かす。
+ * 狭い画面でずらしても、読みにくくなるだけで意図は伝わらない。 */
+@media (min-width: 1024px) {
+  .p-record--unstable .l-container  { transform: translateX(4%); }
+  .p-record--observing .l-container { transform: translateX(-3%); }
+}
+
+/* ----------------------------------------------------------------------------
+ * エンドコメント
+ * 見出しを持たない、ページ最後の言葉。
+ * 本文と同じ組みにしつつ、ブロックごと中央に置いて少しだけ大きくしている。
+ *
+ * 【文字は左揃えのままにする理由】
+ * 打ち出し演出は、確定済みの文章の上に打ち出し中の文章を重ねて描いている。
+ * 中央揃えにすると、打ち出し中の行がその時点の文字数で中央寄せされ、
+ * 下の確定済みの文章とズレて二重に見えてしまう。
+ * 「ブロックは中央・文字は左」なら、どちらの条件も満たせる。
+ * -------------------------------------------------------------------------- */
+.p-endnote__body {
+  max-width: 28em;
+  margin-inline: auto;
+
+  /* サイズは記録と同じ 16px のまま（ドット書体を 1.25 倍すると輪郭が崩れる）。
+   * 代わりに行間と字間を広げて、最後の言葉としての間合いを作っている。 */
+  letter-spacing: 0.18em;
+  line-height: 2.3;            /* 記録より少しだけ広い。最後の言葉なので間を残す */
+  letter-spacing: 0.1em;
+  color: var(--color-text);
+}
+
+/* 上に細い線を1本だけ引いて、Contact との区切りにする。
+ * セクション見出しが無いぶん、ここで「場面が変わった」ことを示している。 */
+.p-endnote {
+  position: relative;
+}
+
+.p-endnote__body::before {
+  content: "";
+  display: block;
+  width: 4rem;
+  height: 1px;
+  margin: 0 auto var(--space-16);
+  background-color: var(--color-line);
+}
+
+/* --------------------------------------------------------------------------
+ * 動きを減らす設定
+ * 状態の点は「点灯したまま」にする。意味は文字で伝わるので情報は欠けない。
+ * ------------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .p-record__statusDot {
+    animation: none !important;
+    opacity: 0.9;
+  }
+}

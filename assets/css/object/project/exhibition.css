@@ -1,0 +1,188 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Object / Project / exhibition.css  →  .p-exhibition
+ * ----------------------------------------------------------------------------
+ * 開催情報とチケット予約フォーム。
+ * このLPで最も「行動してほしい」セクションなので、
+ * 他セクションより情報の密度を上げ、導線を1本に絞っている。
+ * ========================================================================== */
+
+/* セクションの発光位置。
+ * グラデーションの定義そのものは Layout 層（main.css の .l-section::before）にあり、
+ * ここでは位置だけを変数で渡している。
+ * 理由：会期情報に向かって下から光が上がる配置。
+ * 値を変えるだけで光の当たり方を調整でき、グラデーションを書き写す必要がない。 */
+.p-exhibition {
+  --glow-x: 30%;
+  --glow-y: 70%;
+  --glow-x2: 74%;
+  --glow-y2: 24%;
+}
+
+/* 日時。
+ * ワイヤーの「2027.3.XX　18:00 START」にあたる。
+ * 明朝・等幅ではなく display フォント（Arial）で大きく組むのは、
+ * 日付は読むものではなく「一目で掴むもの」だから。
+ * font-variant-numeric:tabular-nums は、日付の桁を揃えるため。 */
+.p-exhibition__date {
+  margin-top: var(--space-12);
+  font-family: var(--font-display);
+  /* 数値ルール1：等幅数字（定義と理由は component/numeric.css） */
+  font-variant-numeric: tabular-nums slashed-zero;
+  font-size: clamp(1.75rem, 1rem + 4vw, 3.5rem);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  color: var(--color-text-weak);
+  text-align: center;
+  /* 単語単位で折り返させる。
+   * 日付と時刻の間で改行してほしいが、日付の途中では折り返したくないため、
+   * HTML側で span に分け、ここでは inline-block の塊として扱う。 */
+}
+
+.p-exhibition__dateMain,
+.p-exhibition__dateTime {
+  display: inline-block;
+}
+
+.p-exhibition__dateTime {
+  margin-left: 0.6em;
+  color: var(--color-text);
+}
+
+/* 会場名。日付の直下に小さく添える */
+.p-exhibition__venue {
+  /* 11〜13px の小さい文字は Noto Sans JP に逃がす。
+   * New Tegomin は線が細く不均一で、黒地の小さい文字では形が潰れるため
+   * （実測で判断。定義と理由は foundation/variables.css の --font-ui）。 */
+  font-family: var(--font-ui);
+  margin-top: var(--space-3);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--color-text-weak);
+}
+
+/* 開催情報の詳細（dl）。中央寄せの器に入れる */
+.p-exhibition__detail {
+  margin-top: var(--space-16);
+  display: grid;
+  justify-items: center;
+}
+
+/* --------------------------------------------------------------------------
+ * チケット予約
+ * ------------------------------------------------------------------------ */
+.p-exhibition__ticket {
+  margin-top: var(--space-16);
+  display: grid;
+  justify-items: center;
+  gap: var(--space-6);
+}
+
+.p-exhibition__ticketLead {
+  /* 11〜13px の小さい文字は Noto Sans JP に逃がす。
+   * New Tegomin は線が細く不均一で、黒地の小さい文字では形が潰れるため
+   * （実測で判断。定義と理由は foundation/variables.css の --font-ui）。 */
+  font-family: var(--font-ui);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--color-text-weak);
+}
+
+/* Googleフォーム埋め込み枠。
+ * 幅を本文より広く取りすぎないのは、
+ * フォームの入力欄が横に間延びすると入力しづらくなるため。 */
+.p-exhibition__embed {
+  width: 100%;
+  max-width: 46rem;
+  margin-top: var(--space-8);
+}
+
+/* 注意事項。
+ * 予約前に必ず読む必要がある情報なので、フォームの上に置く。
+ * 下に置くと、フォームを送信した後にしか目に入らない。 */
+.p-exhibition__notes {
+  /* 11〜13px の小さい文字は Noto Sans JP に逃がす。
+   * New Tegomin は線が細く不均一で、黒地の小さい文字では形が潰れるため
+   * （実測で判断。定義と理由は foundation/variables.css の --font-ui）。 */
+  font-family: var(--font-ui);
+  margin-top: var(--space-8);
+  max-width: 46rem;
+  margin-inline: auto;
+  font-size: var(--fs-xs);
+  line-height: 2;
+  color: var(--color-text-weak);
+}
+
+.p-exhibition__notes li {
+  position: relative;
+  padding-left: 1.2em;
+}
+
+/* 行頭記号。list-style ではなく疑似要素で置くのは、
+ * インデント位置を和文の字送りに合わせて細かく調整するため。 */
+.p-exhibition__notes li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--color-line);
+}
+
+/* ----------------------------------------------------------------------------
+ * Coming soon（会場・チケットが未公開の間だけ出るブロック）
+ * ----------------------------------------------------------------------------
+ * 【なぜ大きく出さないのか】
+ * このセクションで最も強い情報は「開催日」で、Coming soon はその補足。
+ * 同じ大きさで並べると「まだ何も決まっていないページ」に見えてしまう。
+ * 日付より一段落とし、等幅で淡々と置くことで
+ * 「未定」ではなく「追って発表」というトーンにしている。
+ * -------------------------------------------------------------------------- */
+.p-exhibition__coming {
+  /* 開催日を非公開にしたため、このブロックがセクションの主役になった。
+   * 上の余白を広げて、見出し（縦置きラベル）との間に間を作っている。 */
+  margin-top: var(--space-16);
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.p-exhibition__comingLabel {
+  font-family: var(--font-mono);
+  /* 【大きくした理由】
+   * 開催日を非公開にしたので、このセクションで最初に目に入るべきものが
+   * 「Coming soon」になった。以前の 14px は日付の添え物としての寸法で、
+   * 主役に据えるには小さすぎる。
+   * 以前セクション見出しに使っていた --fs-xl（30→52px）と同じ階層に引き上げ、
+   * 「ここが見出しである」ことが寸法で伝わるようにした。
+   * ただし字間 0.32em はそのまま。大きくしたうえに字間まで詰めると
+   * 英字が塊になって「掲示」ではなく「ロゴ」に見えてしまう。 */
+  font-size: var(--fs-xl);
+  letter-spacing: 0.32em;      /* 字間を大きく開けて、短い英字でも間が持つようにする */
+  text-transform: uppercase;
+  color: var(--color-accent);
+  line-height: var(--lh-tight);
+
+  /* 上下に細い線を引いて「掲示」の体裁にする。
+   * 枠で囲まないのは、黒地の中に四角い箱が浮くとそこだけ UI 的に見えるため。
+   * 文字が大きくなったぶん、線との間と左右の余白も広げて釣り合いを取っている。
+   *
+   * 【字間と右端の余白について】
+   * letter-spacing は「最後の1文字のうしろ」にも入る。
+   * そのままだと文字列が左に寄って見えるので、
+   * 右側の padding を字間ぶん（0.32em）差し引いて光学的に中央へ戻している。 */
+  padding-block: var(--space-4);
+  border-block: 1px solid var(--color-line);
+  padding-inline: var(--space-12) calc(var(--space-12) - 0.32em);
+}
+
+.p-exhibition__comingNote {
+  /* 11〜13px の小さい文字は Noto Sans JP に逃がす。
+   * New Tegomin は線が細く不均一で、黒地の小さい文字では形が潰れるため
+   * （実測で判断。定義と理由は foundation/variables.css の --font-ui）。 */
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  line-height: 2;
+  color: var(--color-text-weak);
+  max-width: 34em;
+}

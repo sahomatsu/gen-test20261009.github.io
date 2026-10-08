@@ -1,0 +1,254 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Layout / header.css  →  .l-header
+ * ----------------------------------------------------------------------------
+ * FLOCSS の Layout 層。
+ * 「ページの大枠を構成し、そのページに1つしか存在しない要素」をここに置く。
+ * ヘッダーは再利用する部品ではなくページの骨格なので c- ではなく l- を付けている。
+ * ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+ * .l-header
+ * 理由：ワイヤーフレームどおりナビゲーションを画面右上に固定配置する。
+ * position:fixed にしたのは、1ページ構成のLPでは現在地の把握と
+ * セクション間の移動手段が常に手元にある必要があるため。
+ * 背景色を敷かず透明にしているのは、Heroの墨ビジュアルを遮らないため
+ * （帯が載ると「余白を恐れない」構成の見え方が壊れる）。
+ * -------------------------------------------------------------------------- */
+.l-header {
+  position: fixed;
+  inset: 0 0 auto 0;           /* top/right/left を0、bottomはauto＝上辺に張り付ける */
+  z-index: var(--z-header);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--space-6) var(--container-gutter);
+  pointer-events: none;        /* ヘッダーの「余白部分」がHeroのマウス操作を奪わないようにする。
+                                * 実際に触れる子要素だけ pointer-events:auto で戻す */
+
+  /* 既定は暗い面（Hero）の上にいる状態＝明るい文字。
+   * ヘッダーの下に来るセクションの data-tone を JS（ui.js）が読み取り、
+   * 明るい面に入ったら .is-onLight を付けて文字色を反転させる。
+   *
+   * 【mix-blend-mode: difference を採用しなかった理由】
+   * 背景に応じて自動反転する合成モードは一見スマートだが、
+   * 下地が中間調（グレー）のときに文字も中間調になり、
+   * コントラスト比が 1:1 近くまで落ちて完全に読めなくなる。
+   * 墨のビジュアルは中間調が大半を占めるため、この方式は本サイトでは成立しない。
+   * 「どの面の上にいるか」を明示的に切り替えるほうが、可読性を確実に担保できる。 */
+  color: var(--color-paper);
+  text-shadow: 0 0 10px rgba(11, 12, 10, 0.6);
+  transition: color var(--dur-fast) var(--ease);
+}
+
+/* 明るい面の上にいるとき。
+ * 影も紙色側に反転させ、白い背景の上でも文字の輪郭が沈まないようにする。 */
+.l-header.is-onLight {
+  color: var(--color-ink);
+  text-shadow: 0 0 10px rgba(244, 242, 235, 0.85);
+}
+
+/* --------------------------------------------------------------------------
+ * .l-header__brand
+ * 理由：ワイヤーには無い要素だが追加した。
+ * 【追加提案】1ページ構成でもスクロールが長いため、Heroを抜けた後に
+ * 「今どのサイトを見ているか」を示す手がかりが必要と判断。
+ * ただし常時表示すると Hero の "Gen" と二重になるので、
+ * Heroを通過したときだけ .is-visible を付けてフェードインさせる（JS: ui.js）。
+ * ------------------------------------------------------------------------ */
+.l-header__brand {
+  pointer-events: auto;
+  display: block;
+  line-height: 0;             /* 画像の下の余白を消して、ナビと高さを揃える */
+  opacity: 0;
+  transform: translateY(-0.35rem);
+  transition: opacity var(--dur-base) var(--ease),
+              transform var(--dur-base) var(--ease);
+}
+
+/* シンボルマークの大きさ。
+ * 高さで決めているのは、ヘッダーの行の高さに合わせたいため。
+ * 1.75rem（28px）は、ナビの文字（11px）より明確に大きく、
+ * かつ固定ヘッダーの高さ（--header-height）を押し広げない上限。 */
+.l-header__brandImg {
+  display: block;
+  height: 4rem;
+  width: auto;
+  /* 墨の明るい部分に重なっても輪郭が残るよう、ごく淡い影を敷く */
+  filter: drop-shadow(0 0 10px rgba(8, 9, 10, 0.6));
+}
+
+.l-header__brand.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+ * .l-header__nav / .l-header__list
+ * 理由：ワイヤーどおり右上で縦積みにする。
+ * 一般的な横並びグローバルナビにしなかったのは、
+ * 縦積みのほうが画面上部の水平ラインを分断せず、Heroの墨の広がりを邪魔しないため。
+ * ------------------------------------------------------------------------ */
+.l-header__nav {
+  pointer-events: auto;
+}
+
+.l-header__list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.35em;
+    font-family: var(--font-display);
+    font-size: var(--fs-s);
+    letter-spacing: var(--ls-wide);
+    line-height: 1.4;
+    margin-right: 21px;
+}
+
+.l-header__link {
+  display: inline-block;
+  padding: 0.25rem 0;          /* クリック領域をテキスト高より広げ、押しやすくする */
+  position: relative;
+}
+
+/* 先頭の「・」はワイヤーの表記を踏襲した装飾。
+ * content で入れているのは、これが読み上げ不要な装飾記号であり、
+ * HTMLに文字として書くとスクリーンリーダーが「なかぐろ」と読んでしまうため。 */
+.l-header__link::before {
+  content: "\30FB";
+  opacity: 0.55;
+  margin-right: 0.25em;
+}
+
+/* 現在表示中のセクションを示す状態クラス（JS: ui.js が付与）。
+ * 色を変えずに不透明度と字間で差をつけているのは、
+ * 明るい面と暗い面の両方で同じ見え方になるようにするため
+ * （色で示すと、反転したときに強調が弱く見えてしまう）。 */
+.l-header__link.is-current {
+  opacity: 1;
+  letter-spacing: 0.24em;
+}
+
+.l-header__list .l-header__link {
+  opacity: 0.78;
+}
+
+.l-header__list .l-header__link:hover,
+.l-header__list .l-header__link:focus-visible {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+ * .l-header__toggle（モバイル用の開閉ボタン）
+ * 理由：〜767px では縦積みナビ5項目がHeroのコピーと重なるため、
+ * ボタンに畳んでドロワーで開く。
+ * 44px 四方を確保しているのは、モバイルでの誤タップを防ぐタップターゲットの目安
+ * （WCAG 2.1 の 2.5.5 Target Size / AAA、Appleのヒューマンインターフェース指針も44pt）。
+ * ------------------------------------------------------------------------ */
+.l-header__toggle {
+  pointer-events: auto;
+  /* ドロワー（.l-header__nav）は画面全体を覆うため、
+   * 重なり順を指定しないと閉じるボタンがドロワーの下に隠れて押せなくなる。
+   * position を付けたうえで、ドロワーより1つ上の階層に置く。 */
+  position: relative;
+  z-index: calc(var(--z-drawer) + 1);
+  display: grid;
+  place-content: center;
+  gap: 8px;
+  width: 50px;
+  height: 50px;
+  margin: -0.5rem -0.5rem -0.5rem 0; /* 見た目の位置は変えずタップ領域だけ外側に広げる */
+  color: inherit;
+}
+
+.l-header__toggleBar {
+  display: block;
+  width: 25px;
+  height: 1px;
+  background-color: currentColor;
+  transition: transform var(--dur-fast) var(--ease),
+              opacity var(--dur-fast) var(--ease);
+}
+
+/* 開いている間は2本の線をX字に組み替える。
+ * アイコン画像を使わずCSSだけで作っているのは、
+ * 画像1枚分の通信を減らし、色の反転（currentColor）に自動追従させるため。 */
+/* 開いている間は、背面が必ず暗くなるので線の色を明るい側に固定する */
+.l-header__toggle[aria-expanded="true"] {
+  color: var(--color-paper);
+}
+
+.l-header__toggle[aria-expanded="true"] .l-header__toggleBar:nth-child(1) {
+  transform: translateY(3px) rotate(28deg);
+}
+
+.l-header__toggle[aria-expanded="true"] .l-header__toggleBar:nth-child(2) {
+  transform: translateY(-3px) rotate(-28deg);
+}
+
+/* --------------------------------------------------------------------------
+ * ブレークポイントごとの出し分け
+ * モバイルファーストで書いているため、
+ * 既定＝モバイル、min-width で上書き＝タブレット以上、という順序になっている。
+ * ------------------------------------------------------------------------ */
+
+/* 〜767px：ナビは全画面ドロワー。
+ * position:fixed + inset:0 で画面を覆い、背景を強く沈めて
+ * 下のコンテンツと混ざらないようにする（可読性の確保）。 */
+@media (max-width: 767px) {
+  .l-header__nav {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-drawer);
+    display: grid;
+    place-content: center;
+    background-color: rgba(11, 12, 10, 0.94);
+    /* backdrop-filter は非対応ブラウザでは無視されるだけで崩れないため、
+     * 背景色で可読性を担保したうえで「あれば効く」装飾として使う */
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;       /* opacity:0 だけだと非表示中もタブキーで到達できてしまうため、
+                               * visibility で完全にフォーカス対象から外す */
+    transition: opacity var(--dur-base) var(--ease),
+                visibility var(--dur-base) var(--ease);
+  }
+
+  .l-header__nav.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .l-header__list {
+    align-items: center;
+    gap: var(--space-6);
+    font-size: 1rem;
+    text-shadow: none;
+  }
+
+  .l-header__link {
+    padding: 0.5rem 1rem;     /* ドロワー内はタップ領域を十分に確保する */
+  }
+
+  /* ドロワーを開いている間は必ず暗い背景になるため、
+   * 面の明暗判定に関わらず文字を明るい側に固定する。
+   * これが無いと、明るいセクションでメニューを開いたときに
+   * 黒背景に黒文字という最悪の組み合わせになる。 */
+  .l-header__nav.is-open {
+    color: var(--color-paper);
+    text-shadow: none;
+  }
+}
+
+/* 768px 以上：ドロワーは不要なのでボタンを隠し、ナビを常時表示に戻す */
+@media (min-width: 768px) {
+  .l-header__toggle {
+    display: none;
+  }
+
+  .l-header__nav {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    background: none;
+  }
+}

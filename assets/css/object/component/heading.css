@@ -1,0 +1,256 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Object / Component / heading.css
+ * ----------------------------------------------------------------------------
+ * FLOCSS の Object > Component 層。
+ * 「どのセクションに置いても同じ見た目・同じ意味になる、最小単位の部品」を置く。
+ * 見出しはAbout〜Contactの全セクションで共通利用するためこの層に置いた
+ * （特定セクション専用なら Project 層＝ p- になる）。
+ * ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+ * .c-sectionTitle
+ * 理由：ワイヤーフレームの「:: About」「:: Collection」という表記をそのまま部品化した。
+ * 記号「::」は、セクションの開始を示すマーカーであると同時に、
+ * 「研究機関らしさ」という世界観の要求に対して、装飾を足さずに
+ * 記述的（プログラムの名前空間のような）な記号で応えるための選択。
+ * -------------------------------------------------------------------------- */
+.c-sectionTitle {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;     /* ワイヤーどおり中央寄せ。
+                                * 左寄せにすると視線の開始位置が決まりすぎて、
+                                * 余白の広い構成では画面が片側に寄って見えるため */
+  gap: 0.4em;
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: normal;
+  letter-spacing: var(--ls-tight);
+  line-height: var(--lh-tight);
+  color: var(--color-text);
+}
+
+/* 「::」の部分。
+ * span に分けているのは、記号だけ色と太さを落として
+ * 見出し本体より一段後退させたいため。
+ * aria-hidden は付けない：読み上げでは無視されるレベルの記号であり、
+ * 過剰に属性を足すよりマークアップを単純に保つほうが保守しやすいと判断した。 */
+.c-sectionTitle__mark {
+  color: var(--color-text-weak);
+  font-size: 0.78em;
+  letter-spacing: -0.04em;
+}
+
+/* 左寄せにしたいとき用の modifier。
+ * Journal の小見出しなど、本文と視線の開始位置を揃えたい場面で使う。 */
+.c-sectionTitle--start {
+  justify-content: flex-start;
+}
+
+/* 小さく使うとき用。Journal 内の「Behind log」「INFORMATION」など、
+ * セクション見出しより一段下の階層に使う。 */
+.c-sectionTitle--sub {
+  font-size: var(--fs-lg);
+  letter-spacing: 0.02em;
+}
+
+/* ----------------------------------------------------------------------------
+ * .c-label
+ * 理由：「SEC.02 / COLLECTION」のような、等幅・小文字サイズのラベル。
+ * ワイヤーには無い追加要素。
+ * 【追加提案】余白が大きく装飾の少ない構成では、閲覧者が
+ * 「今どこを見ているか」の手がかりを失いやすい。
+ * 大きな見出しを増やすと世界観が騒がしくなるため、
+ * 標本ラベルのような小さな符号で現在地を示す方式を採った。
+ * これは「研究機関らしさ」というデザインテイストの要求にも合致する。
+ * -------------------------------------------------------------------------- */
+.c-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;   /* 符号としての性格を強めるため大文字に統一 */
+  color: var(--color-text-weak);
+  line-height: 1;
+}
+
+/* ラベルの横に伸びる罫線。
+ * 要素を増やさず ::after で描いているのは、
+ * 装飾のためだけに空のdivをHTMLへ足したくないため（HTMLは意味だけを持たせる）。 */
+.c-label::after {
+  content: "";
+  display: block;
+  width: clamp(1.5rem, 4vw, 4rem);
+  height: 1px;
+  background-color: var(--color-line);
+}
+
+.c-label--noRule::after {
+  display: none;
+}
+
+/* ----------------------------------------------------------------------------
+ * .c-lead
+ * 理由：セクション冒頭のリード文。
+ * 游教科書体系（--font-serif）を使うのは、
+ * ブランドの言葉だけ質感を変えて「読ませる文」であることを示すため。
+ * ただしフォントが無い環境では明朝にフォールバックするので、
+ * サイズと行間は明朝でも読みやすい値（大きめ・行間広め）に設定している。
+ * -------------------------------------------------------------------------- */
+.c-lead {
+  font-family: var(--font-serif);
+  font-size: var(--fs-md);
+  line-height: 2.1;
+  letter-spacing: 0.06em;
+  color: var(--color-text);
+}
+
+/* ----------------------------------------------------------------------------
+ * .c-text
+ * 理由：標準の本文ブロック。
+ * max-width を文字数ベース（em）で持たせているのは、
+ * フォントサイズが clamp で変動しても1行の文字数が一定に保たれるため。
+ * -------------------------------------------------------------------------- */
+.c-text {
+  font-size: var(--fs-base);
+  line-height: var(--lh-body);
+  color: var(--color-text);
+  max-width: 42em;
+}
+
+.c-text--weak {
+  color: var(--color-text-weak);
+}
+
+/* 連続する段落の間隔。
+ * 隣接兄弟セレクタ（+）で「2つ目以降の p」にだけ余白を付けることで、
+ * ブロック先頭に不要な余白が生まれない。 */
+.c-text p + p {
+  margin-top: 1.4em;
+}
+
+/* --------------------------------------------------------------------------
+ * .c-sectionHead：セクション見出しのまとまり（ラベル＋見出し）
+ *
+ * 【なぜ Component 層に置いたか】
+ * もとは .p-about__head / .p-exhibition__head という Project 層のクラスを
+ * 他のセクションからも使い回していたが、これは FLOCSS 違反にあたる。
+ * Project 層は「そのセクション固有の見た目」を持つ層で、
+ * Collection の見出しが p-about__head を名乗ると、
+ * About の余白を調整しただけで Collection まで巻き添えで変わってしまう。
+ * 5セクションすべてで同じ形（ラベルの下に見出し）なので、
+ * 汎用部品として Component 層に切り出した。
+ * -------------------------------------------------------------------------- */
+.c-sectionHead {
+  display: grid;
+  justify-items: center;   /* 子要素を中央に寄せる。text-align だけだと
+                            * 幅を持つ子（ラベルの罫線など）が中央に来ないため両方指定する */
+  gap: var(--space-6);
+  text-align: center;
+}
+
+/* 左寄せ版。
+ * Contact だけワイヤーフレームで左に置かれている。
+ * ページ終盤で視線の基準が左へ戻ることで
+ * 「見る時間の終わり／行動の始まり」という切り替わりが生まれる。その意図を尊重した。 */
+.c-sectionHead--start {
+  justify-items: start;
+  text-align: left;
+}
+
+/* --------------------------------------------------------------------------
+ * セクション見出しの「縦置き」
+ * ----------------------------------------------------------------------------
+ * 【いま起きていること】
+ * 大きな「:: Designer」の h2 は index.html 側で hidden にしてあり、
+ * 代わりにこの小さなラベル（SEC.02 — Exhibition）がセクションの題名を担う。
+ * h2 の hidden を外せば元の構成に戻る（README 8章）。
+ *
+ * 【なぜ writing-mode ではなく transform: rotate なのか】
+ * writing-mode: vertical-rl は「縦書き」の指定で、欧文は回るが
+ * 記号（— や .）の向きや字間の扱いが縦組みの規則に切り替わってしまう。
+ * ここで欲しいのは「横組みのまま、紙を回した」状態なので、
+ * 組み方は一切変えずに箱ごと回す transform を使っている。
+ * 結果、字間（--ls-wide）も罫線（::after）もそのまま回る。
+ *
+ * 【rotate(90deg) で左側が文字の下になる理由】
+ * 時計回りに90度回すと、文字の「下」を指していたベクトルが「左」を向く。
+ * ご指定どおり、ベースライン側が外（画面の左端）を向いた状態になる。
+ *
+ * 【transform-origin を左上にしている理由】
+ * 既定の中心（50% 50%）で回すと、箱の幅ぶんだけ位置が飛んで
+ * 配置の計算ができない。左上を軸にすると、回転後の箱は
+ * 「基準点の左側へ、下に向かって」伸びるだけなので、
+ * left / top の指定がそのまま見た目の位置になる。
+ * -------------------------------------------------------------------------- */
+
+/* 1023px 以下では横組みのまま。
+ * 狭い画面には縦書きを置く余白が無く、本文に食い込むため。
+ * （題名を担うので、ラベルとしては少し大きめにしておく） */
+.c-sectionHead .c-label {
+  font-size: var(--fs-sm);
+  letter-spacing: 0.2em;
+  color: var(--color-text);
+}
+
+@media (min-width: 1024px) {
+  .c-sectionHead .c-label {
+    /* 基準は .l-section（position: relative を持つ）。
+     * .l-container ではなくセクションに対して置くことで、
+     * 画面幅が変わっても常に「面の左端」に貼り付く。 */
+    position: absolute;
+    /* 回転後の箱は「基準点の左側」に伸びるため、
+     * 基準点＝文字の上端は、帯の幅（約1em）ぶん右に置いておく必要がある。
+     * この値から約16px 左までが帯の占める範囲になる。 */
+    left: clamp(2rem, 2.6vw, 4rem);
+    top: var(--space-section);
+    transform-origin: left top;
+    /* 回転と、現れるときの移動を1つの transform にまとめている。
+     * 2つに分けて書くと後の指定が前を上書きしてしまうため、
+     * ずらし量は変数（--label-shift）で渡し、ここで合成する。 */
+    /* translateX は回転の「後」に効くので、回った座標系＝画面の縦方向に動く。
+     * 現れるときに少し下りてくる見え方になる。 */
+    transform: rotate(90deg) translateX(var(--label-shift, -1.25rem));
+    white-space: nowrap;         /* 回転後は「縦の帯」なので折り返させない */
+    font-size: 1rem;             /* 題名として読ませる下限。12px では小さすぎる */
+    letter-spacing: 0.26em;      /* 縦に流れる文字列は字間を開けたほうが追いやすい */
+    pointer-events: none;        /* 本文の上に重なっても選択の邪魔をしない */
+
+    /* 入ってくる／出ていく演出。
+     * opacity と filter だけを動かしているのは、
+     * どちらも合成だけで処理され、再レイアウトを起こさないため。 */
+    opacity: 0;
+    filter: blur(var(--label-blur, 8px));
+    transition:
+      opacity var(--dur-slow) var(--ease),
+      filter var(--dur-slow) var(--ease),
+      transform var(--dur-slow) var(--ease);
+  }
+
+  /* 罫線は回転後に「下へ伸びる線」になる。
+   * 題名の終端を示す役割は変わらないので、長さだけ少し伸ばした。 */
+  .c-sectionHead .c-label::after {
+    width: clamp(2.5rem, 5vw, 5rem);
+  }
+
+  /* そのセクションが画面に入っているあいだだけ表示する。
+   * クラスの付け外しは assets/js/section-label.js が行う。 */
+  .c-sectionHead .c-label.is-inview {
+    opacity: 1;
+    filter: blur(0);
+    --label-shift: 0rem;
+  }
+}
+
+/* 動きを減らす設定のときは、ぼかしも移動もせず最初から出す。
+ * 「演出が無いと読めない」状態を作らないのが大前提。 */
+@media (prefers-reduced-motion: reduce) {
+  .c-sectionHead .c-label {
+    opacity: 1;
+    filter: none;
+    transition: none;
+    --label-shift: 0rem;
+  }
+}

@@ -1,0 +1,120 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Object / Component / loader.css  →  .c-loader
+ * ----------------------------------------------------------------------------
+ * 初回訪問時に一度だけ出る導入演出。
+ * 黒画面に墨が一滴落ちて広がり、その中からブランド名が浮かんで消える。
+ *
+ * 【実装方針：JSに頼らず、CSSだけで必ず終わる作りにする】
+ * ローディング演出の最大の事故は「JSが失敗して画面が黒いまま操作できない」こと。
+ * そこで、
+ *   ・オーバーレイはHTMLに最初から書いておく（JSを待たずに表示される）
+ *   ・CSSアニメーションの最後で必ず opacity:0 / visibility:hidden になる
+ *   ・animation-fill-mode: forwards でその状態を保持する
+ * という形にしてある。JSが1行も動かなくても、1.9秒後には必ず消える。
+ * JS（loader.js）は「2回目以降は出さない」「終わったらDOMから外す」だけを担当する。
+ *
+ * 【2回目以降を出さない方法】
+ * index.html の <head> に置いた数行のスクリプトが sessionStorage を読み、
+ * 既に見ていれば html に .is-loaderSkipped を付ける。
+ * <head> で判定するのは、bodyが描画される前にクラスを付けないと
+ * オーバーレイが一瞬だけ見えてしまうため。
+ * ========================================================================== */
+
+.c-loader {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-loader);
+  display: grid;
+  place-items: center;
+  background-color: var(--surface-0);
+  pointer-events: none;        /* 演出中もスクロールなどを妨げない */
+
+  /* 1.9秒後に必ず消える（JSが動かなくても）。
+   * visibility も畳むのは、透明なだけだと
+   * 下のリンクがクリックできない状態が残る環境があるため。 */
+  animation: c-loaderOut 0.55s var(--ease) 1.35s forwards;
+}
+
+@keyframes c-loaderOut {
+  from { opacity: 1; visibility: visible; }
+  to   { opacity: 0; visibility: hidden; }
+}
+
+/* 墨の一滴。
+ * 画像を使わず radial-gradient で描いているのは、
+ * 導入演出のために画像を1枚読み込むと、
+ * その読み込みを待つあいだ演出が始まらないという本末転倒が起きるため。 */
+.c-loader__drop {
+  width: min(52vmin, 30rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 46% 44%,
+      rgba(240, 238, 230, 0.92) 0%,
+      rgba(203, 199, 179, 0.55) 26%,
+      rgba(58, 66, 44, 0.35) 52%,
+      rgba(8, 9, 10, 0) 72%);
+  /* 0 から広がる。ease-out ではなく cubic-bezier で最初だけ速くしているのは、
+   * 水面に落ちた墨が「ぶつかった瞬間に一気に広がり、あとはゆっくり滲む」
+   * という物理の感じに寄せるため。 */
+  transform: scale(0.04);
+  opacity: 0;
+  filter: blur(6px);
+  animation: c-loaderDrop 1.5s cubic-bezier(0.12, 0.72, 0.24, 1) forwards;
+}
+
+@keyframes c-loaderDrop {
+  0%   { transform: scale(0.04); opacity: 0;    filter: blur(2px); }
+  12%  { transform: scale(0.22); opacity: 0.95; filter: blur(3px); }
+  100% { transform: scale(1.9);  opacity: 0;    filter: blur(26px); }
+}
+
+/* 墨の中から浮かぶブランド名。
+ * Hero の見出しと同じ書体・字間にして、
+ * 演出が明けたときに同じ文字がそこにある（続いている）ように見せる。 */
+/* 【文字から画像に変えた箇所】
+ * 以前は "Gen" という文字を置いていた。
+ * ロゴ画像に差し替えたため、文字まわりの指定（font-family / letter-spacing /
+ * color）は不要になり、代わりに大きさの決め方だけが必要になる。
+ *
+ * 【幅ではなく高さで決める理由】
+ * このロゴは縦長（321 × 511）。幅を基準にすると、横長の画面で
+ * 縦に伸びすぎて画面からはみ出す。Hero のロゴと同じ考え方。
+ * ただし導入演出は「一瞬だけ見えるもの」なので、Hero より一回り小さくしている
+ * （同じ大きさだと、演出が終わった瞬間にロゴが動いて見えてしまうため、
+ *  あえて差を付けて「別のカット」として見せている）。 */
+.c-loader__mark {
+  position: absolute;
+  display: block;
+  height: clamp(7rem, 4rem + 14vh, 16rem);
+  width: auto;
+  opacity: 0;
+  filter: blur(14px);
+  animation: c-loaderMark 1.5s var(--ease) 0.22s forwards;
+}
+
+@keyframes c-loaderMark {
+  0%   { opacity: 0;    filter: blur(14px); transform: scale(1.04); }
+  38%  { opacity: 0.96; filter: blur(0);    transform: scale(1); }
+  72%  { opacity: 0.96; filter: blur(0);    transform: scale(1); }
+  100% { opacity: 0;    filter: blur(5px);  transform: scale(0.995); }
+}
+
+/* --------------------------------------------------------------------------
+ * 出さない条件
+ * ------------------------------------------------------------------------ */
+
+/* 2回目以降（head のスクリプトが付ける）。
+ * display:none で完全に消す＝一瞬も描画されない。 */
+.is-loaderSkipped .c-loader {
+  display: none;
+}
+
+/* 動きを減らす設定の人には出さない。
+ * 導入演出は情報を持たないので、迷わず省略してよい種類の動き。 */
+@media (prefers-reduced-motion: reduce) {
+  .c-loader {
+    display: none;
+  }
+}

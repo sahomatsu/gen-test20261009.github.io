@@ -1,0 +1,140 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Foundation / base.css
+ * ----------------------------------------------------------------------------
+ * 素のHTML要素（html, body, h1, p, a …）に対する既定スタイル。
+ * クラスを付けなくても最低限の見た目が整っている状態を作るのがこのレイヤーの役割。
+ * ========================================================================== */
+
+html {
+  /* ルートを 100% にしておく理由：
+   * 16px 固定にするとユーザーがブラウザ設定で文字を大きくしても反映されない。
+   * rem 基準をユーザー設定に追従させることがアクセシビリティ上の前提になる。 */
+  font-size: 100%;
+
+  /* ページ内リンクを滑らかにスクロールさせる。
+   * JSで実装せずCSSに任せているのは、コード量を減らせるうえ
+   * prefers-reduced-motion のときに reset.css 側で自動的に無効化できるため。 */
+  scroll-behavior: smooth;
+
+  /* アンカーで飛んだ先が固定ヘッダーの下に潜らないようにする補正。
+   * JSでスクロール位置を計算する方法もあるが、CSSだけで完結するほうが壊れにくい。 */
+  scroll-padding-top: calc(var(--header-height) + 1rem);
+
+  /* iOS Safari で横画面にしたとき文字が勝手に拡大されるのを防ぐ */
+  -webkit-text-size-adjust: 100%;
+
+  /* ブラウザに「このページは暗い配色だ」と伝える宣言。
+   * スクロールバー・入力欄の既定色・オートフィルの黄色い背景などが
+   * 暗い面に合わせて描画され、黒地の中に白い部品が浮く事故を防げる。 */
+  color-scheme: dark;
+
+  /* ページ全体の地色。body だけでなく html にも置くのは、
+   * スクロールの行き過ぎ（ラバーバンド）で端に明るい帯が見えるのを防ぐため。 */
+  background-color: var(--surface-0);
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-base);
+  font-size: var(--fs-base);
+  line-height: var(--lh-body);
+  letter-spacing: var(--ls-normal);
+
+  /* 文字のアンチエイリアス指定。
+   * 細いウエイトを多用するデザインのため、macOS で文字が太って見えるのを抑える。 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* 装飾要素を画面幅いっぱいに置く箇所があるため、
+   * 想定外の横スクロールが出ないよう保険をかけている。
+   * （overflow-x:hidden は position:sticky を壊すことがあるので、
+   *   sticky を使う要素は body 直下ではなく内側に置く設計にしている） */
+  overflow-x: hidden;
+
+  /* 日本語の禁則処理・改行位置を自然にする。
+   * word-break:normal + overflow-wrap:anywhere で、
+   * 長い英単語やURLははみ出さずに折り返し、和文は不自然に分断されない。 */
+  word-break: normal;
+  overflow-wrap: anywhere;
+  line-break: strict;
+}
+
+/* 見出しは既定で display 系フォント・詰め気味の行送りにする。
+ * font-weight を normal に落としているのは、
+ * 「装飾より情報設計を優先」という方針に沿って太字で声を張らないため。 */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: normal;
+  line-height: var(--lh-heading);
+}
+
+/* リンクの既定。
+ * 下線を色の変化ではなく box-shadow 風の border-bottom で描いているのは、
+ * text-decoration より下線位置を細かく調整でき、和文でも文字に被らないため。 */
+a {
+  color: inherit;
+  transition: color var(--dur-fast) var(--ease),
+              opacity var(--dur-fast) var(--ease);
+}
+
+a:hover {
+  color: var(--color-sand);
+}
+
+/* キーボード操作時だけフォーカスリングを出す。
+ * :focus ではなく :focus-visible を使う理由：
+ * マウスでクリックしただけの要素にリングが出ると見た目のノイズになるが、
+ * キーボード利用者にはリングが必須。ブラウザの判定に委ねるのが :focus-visible。 */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* 選択範囲の色。ブランドカラーに寄せて世界観を途切れさせない */
+::selection {
+  background-color: var(--color-moss);
+  color: var(--color-paper);
+}
+
+/* ----------------------------------------------------------------------------
+ * data-tone による明暗の切り替え
+ * ----------------------------------------------------------------------------
+ * 【なぜ属性セレクタでやるのか】
+ * .p-hero--dark のようにコンポーネントごとに反転クラスを作ると、
+ * 中に入るボタンや見出しにもすべて反転用の modifier が必要になり組み合わせが爆発する。
+ * そこで「面の明暗」をセクション側の data-tone で宣言し、
+ * セマンティックカラー変数そのものを差し替える方式にした。
+ * 内側のコンポーネントは var(--color-text) を見ているだけで自動的に追従する。
+ *
+ * 【黒基調に統一したあとも仕組みを残している理由】
+ * 現在このLPの面はすべて dark で、:root の既定値と同じ値になる。
+ * それでも light の定義を残してあるのは、
+ * 「1セクションだけ紙白で抜きたい」という要望が後から出やすく、
+ * そのとき data-tone="light" を1つ付けるだけで済むようにしておくため。
+ * （その場合、マウスストーカーの墨も自動で濃い色に切り替わる：ink-stalker.js）
+ * -------------------------------------------------------------------------- */
+[data-tone="dark"] {
+  --color-bg: var(--color-bg-dark);
+  --color-text: var(--color-text-on-dark);
+  --color-text-weak: var(--color-text-weak-on-dark);
+  --color-line: var(--color-line-on-dark);
+  --color-accent: var(--color-sand);
+  color: var(--color-text);
+  /* background-color をここで塗らないのは、
+   * セクションの地色を .l-section 側のグラデーションに任せているため。
+   * ここでベタ塗りすると、せっかくの濃淡がすべて上書きされてしまう。 */
+}
+
+/* 紙白の面（現在このLPでは未使用。上のコメント参照） */
+[data-tone="light"] {
+  --color-bg: var(--color-bg-light);
+  --color-text: var(--color-text-on-light);
+  --color-text-weak: var(--color-text-weak-on-light);
+  --color-line: var(--color-line-on-light);
+  --color-accent: var(--color-moss);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}

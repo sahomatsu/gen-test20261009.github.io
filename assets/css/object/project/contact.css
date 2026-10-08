@@ -1,0 +1,91 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Object / Project / contact.css  →  .p-contact
+ * ----------------------------------------------------------------------------
+ * お問い合わせフォームとSNSリンク。
+ * ページの最後に置くため、余白を広く取り、
+ * フォーム以外の要素を極力置かない（入力に集中できる状態を作る）。
+ * ========================================================================== */
+
+/* セクションの発光位置。
+ * グラデーションの定義そのものは Layout 層（main.css の .l-section::before）にあり、
+ * ここでは位置だけを変数で渡している。
+ * 理由：フォームの背面が最も暗くなるよう、光を外側へ逃がす。
+ * 値を変えるだけで光の当たり方を調整でき、グラデーションを書き写す必要がない。 */
+.p-contact {
+  --glow-x: 22%;
+  --glow-y: 34%;
+  --glow-x2: 70%;
+  --glow-y2: 78%;
+}
+
+/* リード文。
+ * 【中央寄せにした理由】
+ * ご要望により。見出しが縦置きラベルに変わって左端の基準線が無くなったため、
+ * リード文だけが左に残ると、どこにも揃っていない1行に見えてしまう。
+ * 中央に置くと、下の連絡先・SNS と同じ中心線に乗って一本の軸が通る。
+ * margin-inline:auto を併記しているのは、max-width を持つブロックは
+ * text-align だけでは中央に来ない（箱そのものは左のまま）ため。 */
+.p-contact__lead {
+  max-width: 32em;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.p-contact__form {
+  margin-top: var(--space-16);
+}
+
+/* メールアドレスでの問い合わせ先。
+ * フォームだけだと「送れたか分からない」不安が残るため、
+ * 直接連絡できる手段も併記する（掲載必須項目にも「フォーム or メールアドレス」とある）。
+ * mailto リンクは長くなりがちなので、
+ * 等幅にして途中で折り返しても読めるようにしている。 */
+.p-contact__mail {
+  margin-top: var(--space-12);
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.06em;
+  color: var(--color-text-weak);
+}
+
+/* 【フォーム非公開中の表示】--solo
+ * フォームを隠しているあいだ、ここが唯一の問い合わせ窓口になる。
+ * 「または」という接続の言葉を外し、サイズを上げて単独で成立させている。
+ * フォームを戻すときは HTML から --solo を外すだけで、上の控えめな表示に戻る。 */
+.p-contact__mail--solo {
+  margin-top: var(--space-16);
+  /* 等幅のままサイズだけ上げる。書体を変えないのは、
+   * メールアドレスは「読む文」ではなく「写し取る記号列」であり、
+   * 等幅のほうが1文字ずつ目で追いやすいため。 */
+  font-size: var(--fs-md);
+  letter-spacing: 0.04em;
+}
+
+.p-contact__mailLink {
+  border-bottom: 1px solid var(--color-line);
+  padding-bottom: 0.15em;
+  color: var(--color-text);
+}
+
+/* --solo のときはリンク自体も主役なので、本文色まで持ち上げて
+ * 下線も最初からはっきり見せる（ホバーして初めて気づく状態にしない）。 */
+.p-contact__mail--solo .p-contact__mailLink {
+  display: inline-block;
+  color: var(--color-text);
+  border-bottom-color: currentColor;
+  padding-bottom: 0.25em;
+}
+
+.p-contact__mailLink:hover,
+.p-contact__mailLink:focus-visible {
+  border-bottom-color: currentColor;
+}
+
+/* SNS 群。
+ * フォームとの間に大きな余白を置いて、
+ * 「送る」か「見に行く」かの選択肢が混ざらないようにしている。 */
+.p-contact__sns {
+  margin-top: var(--space-24);
+}

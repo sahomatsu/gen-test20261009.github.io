@@ -1,0 +1,69 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Object / Project / designer.css  →  .p-designer
+ * ----------------------------------------------------------------------------
+ * デザイナー紹介。
+ * もとは About セクションの中のブロック（.p-about__designer）だったが、
+ * About を一時非公開にしたため、独立したセクションとして切り出した。
+ * 見た目の指定は about.css から移しただけで、値は変えていない。
+ *
+ * 【クラス名を p-about__designer から p-designer に変えた理由】
+ * FLOCSS では、クラス名の先頭（ブロック名）がそのまま所属を表す。
+ * About の外に出た要素が p-about__ を名乗り続けると、
+ * 「About の中にあるはず」と読んだ人が探して見つけられない。
+ * ============================================================================ */
+
+/* --------------------------------------------------------------------------
+ * デザイナー紹介
+ * ワイヤーに図としては無いが、掲載必須項目に含まれるため追加した。
+ * 【配置の理由】ブランドの説明のあとに人物を置くことで、
+ * 「何を作っているか → 誰が作っているか」という読み順になる。
+ * 逆順にすると人物紹介が先に立ち、作品より作家が主役の構成になってしまう。
+ * ------------------------------------------------------------------------ */
+.p-designer__body {
+  margin-top: var(--space-24);
+  display: grid;
+  gap: var(--space-8);
+}
+
+.p-designer__figure {
+  /* 人物写真は縦位置。ポートレートの定番比率 2:3 を使う */
+  max-width: 22rem;
+}
+
+.p-designer__text {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+}
+
+.p-designer__name {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+}
+
+/* 肩書き・よみ。名前より一段落とした情報 */
+.p-designer__role {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--color-text-weak);
+}
+
+/* 768px 以上で写真とテキストを横並びに。
+ * 写真側を固定幅ではなく fr で指定しているのは、
+ * タブレットとPCで自然に比率が変わるようにするため。 */
+@media (min-width: 768px) {
+  .p-designer__body {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: var(--space-12);
+    align-items: center;
+  }
+
+  .p-designer__figure {
+    max-width: none;
+  }
+}

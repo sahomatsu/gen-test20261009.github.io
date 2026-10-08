@@ -1,0 +1,160 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Object / Component / button.css  →  .c-button
+ * ----------------------------------------------------------------------------
+ * ボタン／ボタン状リンクの共通部品。
+ * 「チケット予約」「送信」「and more」など複数箇所で使うため Component 層に置いた。
+ * ========================================================================== */
+
+.c-button {
+  /* inline-flex にする理由：
+   * テキストとアイコン（矢印）を中央揃えで並べつつ、
+   * 親の text-align の影響を受けずに自分の幅を内容に合わせられるため。 */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8em;
+
+  /* 最低高さ 44px。
+   * 理由：モバイルでの誤タップを防ぐタップターゲットの目安（WCAG 2.1 / 2.5.5）。
+   * 文字サイズが小さいボタンでも、この指定で必ず指に収まる大きさが確保される。 */
+  min-height: 44px;
+  padding: 0.9em 2.4em;
+
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  letter-spacing: var(--ls-wide);
+  line-height: 1.2;
+  text-align: center;
+
+  /* 角丸ゼロ。
+   * 理由：モード系・研究機関らしさという方向性に対して、
+   * 角丸は「親しみやすさ」の記号として働き、狙いと逆に作用するため。 */
+  border-radius: 0;
+  border: 1px solid currentColor;
+  color: var(--color-text);
+  background-color: transparent;
+
+  position: relative;
+  overflow: hidden;            /* 内側の塗りアニメーションをボタン枠で切るため */
+  isolation: isolate;          /* 疑似要素の重なりをボタン内部に閉じる */
+  transition: color var(--dur-fast) var(--ease);
+  cursor: pointer;
+}
+
+/* ホバー時の塗り。
+ * background-color をトランジションさせるのではなく、
+ * 疑似要素を transform でスライドさせている。
+ * 理由：色のアニメーションは再描画（paint）を伴うが、
+ * transform は合成（composite）だけで済むためフレーム落ちしにくい。 */
+.c-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--color-text);
+  transform: scaleY(0);
+  transform-origin: 50% 100%;  /* 下から立ち上がる。墨が染み上がる印象に合わせた */
+  transition: transform var(--dur-base) var(--ease);
+}
+
+.c-button:hover::before,
+.c-button:focus-visible::before {
+  transform: scaleY(1);
+}
+
+/* 塗りが入ったら文字色は背景色に反転させる。
+ * var(--color-bg) を参照しているので、
+ * 紙白の面でも黒い面でも自動的に正しい反転色になる（data-tone と連動）。 */
+.c-button:hover,
+.c-button:focus-visible {
+  color: var(--color-bg);
+}
+
+/* 矢印。
+ * 文字（→）ではなく CSS の三角／線で描くと環境差が出るため、
+ * ここでは汎用性の高い文字参照を疑似要素で入れ、
+ * transform で少しだけ動かして「進む」感触を作る。 */
+.c-button__arrow {
+  display: inline-block;
+  transition: transform var(--dur-base) var(--ease);
+}
+
+.c-button:hover .c-button__arrow,
+.c-button:focus-visible .c-button__arrow {
+  transform: translateX(0.35em);
+}
+
+/* --------------------------------------------------------------------------
+ * modifier
+ * ------------------------------------------------------------------------ */
+
+/* 主要アクション（チケット予約・送信）。
+ * 塗り済みの状態から始めることで、ページ内で最も強い誘導であることを示す。 */
+.c-button--primary {
+  color: var(--color-bg);
+  border-color: var(--color-text);
+}
+
+.c-button--primary::before {
+  transform: scaleY(1);
+}
+
+.c-button--primary:hover,
+.c-button--primary:focus-visible {
+  color: var(--color-text);
+}
+
+.c-button--primary:hover::before,
+.c-button--primary:focus-visible::before {
+  transform: scaleY(0);
+  transform-origin: 50% 0;     /* 塗りが引いていく向きを逆にして、
+                                * 「押し返される」ような手応えを出す */
+}
+
+/* 枠線を持たない控えめなリンク（Hero の "and more" など）。
+ * 下線だけで示すのは、Heroの静けさを壊さないため。 */
+.c-button--text {
+  min-height: 0;
+  padding: 0.4em 0;
+  border: none;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.2em;
+}
+
+.c-button--text::before {
+  /* 塗りではなく、下線を左から引くアニメーションに置き換える */
+  inset: auto 0 0 0;
+  height: 1px;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  z-index: 0;
+}
+
+.c-button--text:hover,
+.c-button--text:focus-visible {
+  color: var(--color-text);    /* 反転させない（塗りつぶさないため） */
+}
+
+.c-button--text:hover::before,
+.c-button--text:focus-visible::before {
+  transform: scaleX(1);
+}
+
+/* 全幅にしたいとき（モバイルのフォーム送信ボタンなど）。
+ * width:100% を単体クラスにせず modifier にしているのは、
+ * 「ボタンとしての全幅」という文脈を保つため。 */
+.c-button--block {
+  display: flex;
+  width: 100%;
+}
+
+/* 無効状態。
+ * 色を薄くするだけでなく cursor も変えるのは、
+ * 「押せない」ことを視覚と操作感の両方で伝えるため。 */
+.c-button:disabled,
+.c-button[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}

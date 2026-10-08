@@ -1,0 +1,100 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Object / Component / sns.css  →  .c-sns
+ * ----------------------------------------------------------------------------
+ * SNSリンクの丸アイコン。Contact とフッターの2か所で使うため Component 層。
+ * ========================================================================== */
+
+.c-sns {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+/* 丸いリンク。
+ * 44px 四方を確保しているのはタップ領域の担保（WCAG 2.1 / 2.5.5）。
+ * ここだけ border-radius:50% を使うのは、
+ * ワイヤーフレームの表現を踏襲しつつ、
+ * SNSアイコンという「サイト外への出口」を他のUIと明確に区別するため。 */
+.c-sns__link {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-line);
+  border-radius: 50%;
+  color: var(--color-text-weak);
+  transition: color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              transform var(--dur-fast) var(--ease);
+}
+
+.c-sns__link:hover,
+.c-sns__link:focus-visible {
+  color: var(--color-text);
+  border-color: var(--color-text);
+  transform: translateY(-2px); /* ごくわずかに浮かせるだけ。
+                                * 拡大や回転は世界観に対して過剰と判断した */
+}
+
+/* ----------------------------------------------------------------------------
+ * ロゴ画像（.c-sns__img）
+ * ----------------------------------------------------------------------------
+ * 【なぜ opacity で濃さを変えているのか】
+ * 文字だった頃は color を変えるだけで濃淡が付いた（currentColor）。
+ * 画像の中身は CSS から色を変えられないので、代わりに透明度で濃さを作る。
+ *
+ * 平常時 0.55 ＝ 隣の丸い罫線（--color-line）と同じくらいの存在感。
+ * 画像だけが白く浮くと、そこだけ「貼り付けた素材」に見えてしまう。
+ * ホバー／フォーカスで 1 まで上げ、触れたものがはっきり応える。
+ *
+ * 【0.55 を下限にした理由】
+ * これ以上薄くすると、黒地の上で輪郭が消えて「何のアイコンか分からない」状態になる。
+ * 実測（描画結果のピクセルを測定）で、0.55 のときのアイコンと背景のコントラストは 6.55:1。
+ * アイコンは WCAG 1.4.11（非テキストコントラスト 3:1）の対象なので、倍以上の余裕がある。
+ * ここを 0.3 まで下げると約 3.2:1 まで落ちて基準ぎりぎりになるため、0.55 を下限としている。
+ *
+ * 【filter ではなく opacity を選んだ理由】
+ * filter: brightness() は「元の色を暗くする」処理で、白い画像を灰色にするだけ。
+ * 背面の墨や発光が透けないため、他の要素のように面に馴染まない。
+ * opacity なら背景が透けるので、周囲の濃淡の中に自然に沈む。
+ * -------------------------------------------------------------------------- */
+.c-sns__img {
+  display: block;
+  width: 18px;
+  height: auto;               /* 元画像の縦横比をそのまま保つ（IG と X で比率が違う） */
+  opacity: 0.55;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+
+.c-sns__link:hover .c-sns__img,
+.c-sns__link:focus-visible .c-sns__img {
+  opacity: 1;
+}
+
+/* 動きを減らす設定でも、濃さの切り替えそのものは残す。
+ * これは演出ではなく「どれに触れているか」を伝える情報だから。
+ * 止めるのは変化にかかる時間だけ。 */
+@media (prefers-reduced-motion: reduce) {
+  .c-sns__img { transition: none; }
+}
+
+/* 旧：インラインSVG用。いまは画像に置き換えたため未使用だが、
+ * 将来 SVG に戻す場合にそのまま使えるので残してある。 */
+.c-sns__icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* 見出し「Gen Social Media」。
+ * SNS群の上に置く小さなラベル。 */
+.c-sns__title {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.16em;
+  color: var(--color-text-weak);
+  margin-bottom: var(--space-6);
+}

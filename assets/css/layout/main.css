@@ -1,0 +1,141 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Layout / main.css  →  .l-main / .l-section / .l-container
+ * ----------------------------------------------------------------------------
+ * ページの「器」だけを定義するレイヤー。
+ * 色や装飾は持たせず、幅・余白・並び方の責務に限定している。
+ * こうしておくと、中身のコンポーネントを差し替えてもレイアウトが壊れない。
+ * ========================================================================== */
+
+/* .l-main
+ * 理由：固定ヘッダー分の padding-top を入れていない。
+ * Hero を画面いっぱいの墨ビジュアルから始める構成のため、
+ * ここで上に余白を作るとファーストビューが押し下げられてしまう。
+ * ヘッダーと重なる前提のレイアウトなので、重なり順だけ後ろに送る。 */
+.l-main {
+  position: relative;
+  z-index: var(--z-base);
+}
+
+/* .l-section
+ * 理由：セクション間の余白を1か所で管理するための器。
+ * 個々のセクションに margin を書くと、隣接セクションのマージン相殺で
+ * 「なぜかここだけ余白が足りない」という不具合が起きやすい。
+ * padding で持たせることで相殺を避けている。 */
+.l-section {
+  position: relative;
+  padding-block: var(--space-section);
+  isolation: isolate;          /* 内側のグラデーション層（z-index:-1）を
+                                * このセクションの中に閉じ込める */
+}
+
+/* ----------------------------------------------------------------------------
+ * セクションの「面」をグラデーションで作る
+ * ----------------------------------------------------------------------------
+ * 【設計意図】
+ * サイト全体が黒基調なので、セクションの区切りを「色を変える」で示すと
+ * 黒い帯が並んでいるようにしか見えない。
+ * そこで区切りを面ではなく光の濃淡で表し、
+ * ・セクションの中央付近をごくわずかに持ち上げる（--surface-1）
+ * ・上下端に向かって最も深い黒（--surface-0）へ落とす
+ * ・moss / sand のごく薄い発光を左右交互に置く
+ * という3層で「ひと続きの空間の中で場面が移る」状態を作っている。
+ *
+ * 発光の位置は各セクションが --glow-x / --glow-y で指定する（project層）。
+ * 変数で受けているのは、セクションごとに位置だけ変えたいのに
+ * グラデーションの定義を何度も書き写すのを避けるため。
+ * -------------------------------------------------------------------------- */
+.l-section::before {
+  content: "";
+  position: absolute;
+  /* 上下に少しはみ出させる。
+   * ぴったり inset:0 にすると、隣のセクションとの継ぎ目に
+   * 1px の段差（サブピクセル由来の線）が見えることがあるため。 */
+  inset: -2px 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    /* 1) 差し色の発光。位置はセクションごとに変える */
+    radial-gradient(
+      60% 42% at var(--glow-x, 28%) var(--glow-y, 30%),
+      /* 色（--glow-moss-rgb）と濃さ（--glow-moss-a）を分けて組み立てている。
+       * 濃さだけを別に持つことで、ここを書き換えずに明滅させられる
+       * （定義は object/component/motion.css の c-glowPulse）。 */
+      rgb(var(--glow-moss-rgb) / var(--glow-moss-a)) 0%,
+      transparent 68%
+    ),
+    /* 2) 砂色のごく薄い光。moss とずらして置き、単色に見えないようにする */
+    radial-gradient(
+      52% 38% at var(--glow-x2, 78%) var(--glow-y2, 72%),
+      var(--glow-sand) 0%,
+      transparent 70%
+    ),
+    /* 3) 面そのものの階調。中央がわずかに明るい */
+    linear-gradient(
+      180deg,
+      var(--surface-0) 0%,
+      var(--surface-1) 42%,
+      var(--surface-1) 58%,
+      var(--surface-0) 100%
+    );
+}
+
+/* セクションの切り替わりに引く細い光の線。
+ * ベタの罫線ではなく両端が消えるグラデーションにしているのは、
+ * 線を「引いた」のではなく「境界にわずかな光がある」状態に見せるため。
+ * 隣接セレクタ（+）を使い、最初のセクションには出さない。 */
+.l-section + .l-section::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(239, 239, 233, 0.13) 30%,
+    rgba(239, 239, 233, 0.13) 70%,
+    transparent 100%
+  );
+}
+
+/* 余白の量を状況に応じて変えるための modifier。
+ * Layout層でも BEM の modifier 記法（--）をそのまま使い、記法を統一している。 */
+.l-section--flush {
+  /* 上下の余白を消す。全幅ビジュアル（墨の帯・黒面）を
+   * セクションの縁までぴったり出したいときに使う */
+  padding-block: 0;
+}
+
+.l-section--tight {
+  padding-block: clamp(3rem, 2rem + 5vw, 7rem);
+}
+
+/* .l-container
+ * 理由：最大幅と左右の最低余白をまとめて与える中央寄せの器。
+ * margin-inline:auto で中央寄せし、padding-inline でガター（左右の余白）を確保する。
+ * width:100% を併記しているのは、flex/grid の子になったときに
+ * 幅が内容依存に縮むのを防ぐため。 */
+.l-container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-gutter);
+}
+
+/* 読み物ブロック用の狭い器。
+ * 1行の文字数を40〜45文字程度に収めるのが日本語の可読性の目安なので、
+ * 本文はこちらを使う。 */
+.l-container--narrow {
+  max-width: var(--container-narrow);
+}
+
+/* 全幅ビジュアル用。
+ * max-width を外し、padding も0にして画面端まで到達させる。 */
+.l-container--full {
+  max-width: none;
+  padding-inline: 0;
+}

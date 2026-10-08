@@ -1,0 +1,205 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Object / Component / list.css
+ * ----------------------------------------------------------------------------
+ * ニュース一覧・定義リストなど、テキストの並びを扱う汎用部品。
+ * Hero / Journal / Exhibition の3か所で同じ形の一覧が出てくるため、
+ * セクション固有（p-）ではなく汎用（c-）として切り出した。
+ * ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+ * .c-newsList
+ * 理由：「日付 ＋ 見出し」の並び。
+ * dl（定義リスト）を使うのは、日付と内容が対（key-value）の関係にあり、
+ * ul より意味が正確に伝わるため（スクリーンリーダーも対として読み上げる）。
+ * -------------------------------------------------------------------------- */
+.c-newsList {
+  /* 11〜13px の小さい文字は Noto Sans JP に逃がす。
+   * New Tegomin は線が細く不均一で、黒地の小さい文字では形が潰れるため
+   * （実測で判断。定義と理由は foundation/variables.css の --font-ui）。 */
+  font-family: var(--font-ui);
+  display: grid;
+  gap: var(--space-3);
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+}
+
+/* 1件分の行。
+ * dt と dd を包む div を許容する（HTML5.2以降 dl 直下の div は仕様上有効）。
+ * div で包む理由：1件をグリッドの1単位として扱えるようになり、
+ * 日付と内容の配置をCSSだけで自由に組み替えられるため。 */
+.c-newsList__item {
+  display: grid;
+  gap: 0.15em var(--space-4);
+  padding-block: 0.35em;
+}
+
+.c-newsList__date {
+  /* 数値ルール1：等幅数字（定義と理由は component/numeric.css） */
+  font-variant-numeric: tabular-nums slashed-zero;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+  color: var(--color-text-weak);
+  white-space: nowrap;         /* 日付が途中で折り返すと読みにくいため改行を禁止 */
+}
+
+.c-newsList__body {
+  margin: 0;                   /* dd の既定インデントを打ち消す */
+  color: var(--color-text);
+}
+
+/* 480px 以上で日付と本文を横並びにする。
+ * ここだけブレークポイントを独自に取っているのは、
+ * この部品が狭いカラム内にも置かれるため、
+ * 画面幅ではなく「この部品が横並びにできる幅」を基準にしたいから。 */
+@media (min-width: 480px) {
+  .c-newsList__item {
+    grid-template-columns: 7.5em 1fr;
+    align-items: baseline;
+  }
+}
+
+/* 区切り罫線つきの modifier。
+ * Journal のように件数が多い一覧で、行の切れ目をはっきりさせたいときに使う。 */
+.c-newsList--ruled .c-newsList__item {
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.c-newsList--ruled .c-newsList__item:first-child {
+  border-top: 1px solid var(--color-line);
+}
+
+/* リンクになっている行の反応。
+ * 行全体ではなくテキストにだけ下線を出すことで、
+ * どこが遷移先なのかを明確にしている。 */
+.c-newsList__link {
+  display: inline-block;
+  padding-block: 0.2em;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-fast) var(--ease),
+              color var(--dur-fast) var(--ease);
+}
+
+.c-newsList__link:hover,
+.c-newsList__link:focus-visible {
+  border-bottom-color: currentColor;
+}
+
+/* ----------------------------------------------------------------------------
+ * .c-defList
+ * 理由：開催情報（日時・会場・料金）のような項目名つきデータの表示。
+ * table ではなく dl を使うのは、行列の交差に意味がある「表」ではなく
+ * 単純な項目名と値の対だから。table にするとスクリーンリーダーが
+ * 不要な行列情報を読み上げてしまう。
+ * -------------------------------------------------------------------------- */
+.c-defList {
+  /* 11〜13px の小さい文字は Noto Sans JP に逃がす。
+   * New Tegomin は線が細く不均一で、黒地の小さい文字では形が潰れるため
+   * （実測で判断。定義と理由は foundation/variables.css の --font-ui）。 */
+  font-family: var(--font-ui);
+  display: grid;
+  gap: 0;
+  width: 100%;
+  max-width: 34rem;
+  font-size: var(--fs-sm);
+}
+
+.c-defList__row {
+  display: grid;
+  gap: 0.2em var(--space-6);
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.c-defList__row:first-child {
+  border-top: 1px solid var(--color-line);
+}
+
+.c-defList__key {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--color-text-weak);
+}
+
+.c-defList__value {
+  /* 数値ルール1：等幅数字（定義と理由は component/numeric.css） */
+  font-variant-numeric: tabular-nums slashed-zero;
+  margin: 0;
+  color: var(--color-text);
+}
+
+@media (min-width: 480px) {
+  .c-defList__row {
+    grid-template-columns: 8em 1fr;
+    align-items: baseline;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+ * .c-indexList
+ * 理由：Collection のシーズン一覧。
+ * 「研究機関らしさ」に寄せて、番号 ＋ 名称 ＋ 年 を等幅で並べた索引の形にしている。
+ * -------------------------------------------------------------------------- */
+.c-indexList {
+  display: grid;
+  width: 100%;
+}
+
+.c-indexList__item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: var(--space-4);
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--color-line);
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.08em;
+}
+
+.c-indexList__item:first-child {
+  border-top: 1px solid var(--color-line);
+}
+
+.c-indexList__no {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-weak);
+}
+
+/* 名称と年の間を点線で繋ぐ。
+ * 目次のような見え方にすることで、一覧であることを装飾なしで伝えられる。 */
+.c-indexList__name {
+  position: relative;
+  overflow: hidden;
+}
+
+.c-indexList__name::after {
+  content: "";
+  display: inline-block;
+  width: 100%;
+  margin-left: 0.6em;
+  vertical-align: middle;
+  border-bottom: 1px dotted var(--color-line);
+}
+
+.c-indexList__year {
+  /* 数値ルール1：等幅数字（定義と理由は component/numeric.css） */
+  font-variant-numeric: tabular-nums slashed-zero;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-weak);
+  white-space: nowrap;
+}
+
+/* 現行シーズンだけ強調する状態クラス。
+ * 色を変えるのではなく不透明度と文字色で差をつけ、
+ * パレット外の色を増やさないようにしている。 */
+.c-indexList__item.is-current .c-indexList__name,
+.c-indexList__item.is-current .c-indexList__year {
+  color: var(--color-text);
+}

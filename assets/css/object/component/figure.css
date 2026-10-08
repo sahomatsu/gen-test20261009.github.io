@@ -1,0 +1,162 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Object / Component / figure.css  →  .c-figure
+ * ----------------------------------------------------------------------------
+ * 画像の「枠」を担当する部品。
+ *
+ * 【この部品を用意した最大の理由】
+ * 要件に「img の src 差し替えだけで完結し、画像サイズに依存してレイアウトが崩れない設計」
+ * とあるため、枠側で縦横比を固定し、中の画像は object-fit で流し込む構造にした。
+ * これにより、差し替え画像の実寸が何であってもレイアウトは一切動かない。
+ * 同時に CLS（読み込み中に要素がずれる指標）も 0 に保てる。
+ * ========================================================================== */
+
+.c-figure {
+  position: relative;
+  overflow: hidden;            /* object-fit:cover ではみ出した分を切る */
+  background-color: var(--surface-2); /* 画像読み込み前の下地。
+                                       * 黒基調のページでは、抜けている枠が
+                                       * 真っ黒でも真っ白でも目立ってしまう。
+                                       * 地色よりわずかに明るい面にしておくと
+                                       * 「これから画像が入る場所」として自然に見える */
+  margin: 0;                   /* figure 既定の左右マージンを打ち消す */
+}
+
+/* 既定の比率は 3:4（縦長）。
+ * ルックの見せ方として人物の全身が収まりやすい比率を既定にした。
+ * aspect-ratio は Chrome/Safari/Firefox/Edge の現行2〜3世代すべてで利用可能。 */
+.c-figure {
+  aspect-ratio: 3 / 4;
+}
+
+/* 拡大率をカスタムプロパティとして登録する。
+ * 【なぜ @property が必要か】
+ * ふつうのCSS変数は「文字列の置き換え」なので、値を変えても
+ * transition でなめらかに変化してくれない。
+ * @property で「これは数値だ」と型を宣言すると、変数自体をアニメーションできる。
+ * ここで型を付けているのは、ホバーの拡大とパララックスの移動という
+ * 2つの別々の指定を、1つの transform の中で衝突させずに同居させるため。
+ * （未対応ブラウザではホバーの拡大が瞬時に切り替わるだけで、崩れはしない） */
+@property --img-scale {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+.c-figure__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;           /* 枠を満たしつつ縦横比を維持（はみ出し部分はトリミング） */
+  object-position: center;
+  /* グレースケール寄りに倒して、全体のトーンを揃える。
+   * 差し替え画像の色味がばらついても世界観が崩れないようにするための保険でもある。 */
+  filter: grayscale(0.25) contrast(1.05);
+
+  /* 移動（パララックス）と拡大（ホバー）を1つの transform にまとめる。
+   * 【なぜJSから transform を直接書かないのか】
+   * インラインで transform を書くと、CSS側のホバー指定が必ず負ける。
+   * JS は --parallax-y という「材料」だけを渡し、
+   * 組み立てはCSSが行う形にすると、両方が成立する。 */
+  --img-scale: 1;
+  transform: translate3d(0, var(--parallax-y, 0%), 0) scale(var(--img-scale));
+  transition: --img-scale var(--dur-slow) var(--ease),
+              filter var(--dur-slow) var(--ease);
+}
+
+/* パララックスで動かす画像は、あらかじめ少し拡大しておく。
+ * 動かしたときに枠の上下に隙間（地色）が見えるのを防ぐため。
+ * 1.14 は、移動量 8% に対して上下とも余裕が残る最小値。 */
+.c-figure__img[data-parallax] {
+  --img-scale: 1.14;
+}
+
+/* ホバーでわずかに寄る。
+ * 1.04 という小さい値にしているのは、
+ * 「アニメーションは作品を引き立てるために使う」という方針に従い、
+ * 動き自体が主張しないようにするため。 */
+.c-figure--zoom:hover .c-figure__img,
+a:hover .c-figure--zoom .c-figure__img,
+a:focus-visible .c-figure--zoom .c-figure__img {
+  --img-scale: 1.04;
+  filter: grayscale(0) contrast(1.05);
+}
+
+/* パララックス側は既に 1.14 拡大されているので、その上に同じ比率を掛ける */
+.c-figure--zoom:hover .c-figure__img[data-parallax],
+a:hover .c-figure--zoom .c-figure__img[data-parallax],
+a:focus-visible .c-figure--zoom .c-figure__img[data-parallax] {
+  --img-scale: 1.19;
+}
+
+/* --------------------------------------------------------------------------
+ * 比率の modifier
+ * 差し替え時に「この枠は16:9にしたい」という変更をクラス1つで行えるようにする。
+ * ------------------------------------------------------------------------ */
+.c-figure--square   { aspect-ratio: 1 / 1; }
+.c-figure--portrait { aspect-ratio: 2 / 3; }  /* さらに縦長。ルックの強調用 */
+.c-figure--wide     { aspect-ratio: 16 / 9; } /* ムービー・横位置の写真用 */
+.c-figure--banner   { aspect-ratio: 21 / 9; } /* 全幅の帯ビジュアル用 */
+
+/* キャプション。
+ * figcaption を figure の外に出さず内部に重ねないのは、
+ * 画像に文字を重ねるとコントラストの担保が画像依存になり、
+ * 差し替え時に可読性が壊れるため（外に置けば常に読める）。 */
+.c-figure__caption {
+  /* figure の子ではなく兄弟として置く運用にするため、
+   * ここでは枠の外側に出る前提のスタイルだけ持たせる */
+  display: block;
+  margin-top: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+  color: var(--color-text-weak);
+}
+
+/* --------------------------------------------------------------------------
+ * .c-figure--ink：墨のビジュアルを敷く枠
+ * 全幅の帯として使うため、比率ではなく高さで制御する。
+ * ------------------------------------------------------------------------ */
+.c-inkBand {
+  position: relative;
+  width: 100%;
+  min-height: clamp(20rem, 12rem + 34vw, 36rem);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background-color: var(--surface-0);
+}
+
+.c-inkBand__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* 帯の上下を背景色でぼかして、セクションとの境界を消す。
+ * 画像側にグラデーションを焼き込まずCSSで行うのは、
+ * 差し替え画像でも同じ溶け込み方が得られるようにするため。 */
+.c-inkBand::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    var(--surface-0) 0%,
+    rgba(8, 9, 10, 0) 18%,
+    rgba(8, 9, 10, 0) 82%,
+    var(--surface-0) 100%
+  );
+  pointer-events: none;
+}
+
+.c-inkBand__body {
+  position: relative;
+  z-index: var(--z-visual);
+  padding: var(--space-12) var(--container-gutter);
+  max-width: 46rem;
+  text-align: center;
+}

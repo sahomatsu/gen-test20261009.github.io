@@ -1,0 +1,316 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Object / Project / collection.css  →  .p-collection
+ * ----------------------------------------------------------------------------
+ * シーズン一覧／コンセプト／ルック／ムービー。
+ * 掲載必須項目のうち最も要素数が多いため、
+ * 「概念（コンセプト）→ 索引（シーズン）→ 作品（ルック）→ 動き（ムービー）」
+ * の順に、抽象から具体へ降りていく構成にしている。
+ * ========================================================================== */
+
+/* セクションの発光位置。
+ * グラデーションの定義そのものは Layout 層（main.css の .l-section::before）にあり、
+ * ここでは位置だけを変数で渡している。
+ * 理由：About と左右を反転させ、視線が画面を横断するようにする。
+ * 値を変えるだけで光の当たり方を調整でき、グラデーションを書き写す必要がない。 */
+.p-collection {
+  --glow-x: 76%;
+  --glow-y: 22%;
+  --glow-x2: 20%;
+  --glow-y2: 74%;
+}
+
+/* コンセプト名。ワイヤーの “Still Identity” にあたる。
+ * 引用符ごと1つの塊として中央に置き、前後に大きな余白を取る。
+ * 見出し（h3）ではなく p ＋ 引用符としているのは、
+ * これが見出しではなく「作品タイトルの提示」だから。 */
+.p-collection__concept {
+  margin-top: var(--space-24);
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+  letter-spacing: 0.08em;
+  line-height: 1.8;
+  color: var(--color-text);
+}
+
+.p-collection__conceptNote {
+  margin-top: var(--space-6);
+  max-width: 34em;
+  margin-inline: auto;
+  text-align: center;
+}
+
+/* シーズン索引 */
+.p-collection__index {
+  margin-top: var(--space-16);
+}
+
+/* --------------------------------------------------------------------------
+ * ルックのグリッド
+ * ワイヤーでは4点が横一列。
+ * モバイル2列 → タブレット2列 → PC4列と段階的に増やす。
+ * 1列にしない理由：縦長画像を1列で並べるとスクロール量が過大になり、
+ * 一覧としての「見比べられる」性質が失われるため。
+ * ------------------------------------------------------------------------ */
+.p-collection__looks {
+  margin-top: var(--space-16);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* minmax(0, 1fr) にしているのは、grid の子が内容幅で膨らんで
+   * はみ出す（1fr の既定 min-width:auto 問題）のを防ぐ定石。 */
+  gap: var(--space-4);
+}
+
+@media (min-width: 1024px) {
+  .p-collection__looks {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+
+  /* 偶数番目だけ少し下げて、横一直線に並ぶのを崩す。
+   * ワイヤーでもタイルの高さが揃っていないため、その揺らぎを再現している。
+   * 「わずかな違和感」というテイストの要求に対して、
+   * 装飾を足すのではなくレイアウトのズレで応えるという判断。 */
+  .p-collection__look:nth-child(even) {
+    margin-top: var(--space-12);
+  }
+}
+
+.p-collection__lookCaption {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+  color: var(--color-text-weak);
+}
+
+/* --------------------------------------------------------------------------
+ * MEMBER / SENSUAL ブロック（全幅の黒面）
+ * ワイヤーの黒いビジュアル面を再現する。
+ * 文字を画像の上に散らす構成のため、PCでは絶対配置、
+ * モバイルでは通常の流し込みに切り替える（重なると読めなくなるため）。
+ * ------------------------------------------------------------------------ */
+.p-member {
+  position: relative;
+  margin-top: var(--space-section);
+  overflow: hidden;
+  isolation: isolate;
+  min-height: clamp(30rem, 20rem + 40vw, 48rem);
+  display: grid;
+  align-content: center;
+  padding-block: var(--space-16);
+}
+
+.p-member__visual {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 画像の上に文字を置くための減光。
+ * 左右で濃度を変えているのは、右側に本文が乗るため。
+ *
+ * 【濃度の決め方】感覚で置かず、実測して決めている。
+ * 下地の画像には明度 230 前後の明るい帯があり、そこに本文色（#a8ada7）が重なると
+ * コントラスト比が 1.4:1 程度まで落ちて読めなくなる（WCAG AA は本文 4.5:1 が必要）。
+ * 本文が乗る 60%〜100% の範囲を 0.88 以上まで沈めることで、
+ * 画像のどの帯が来ても 6:1 前後を確保できる。
+ * 逆に左〜中央（画像を見せたい領域）は 0.32 と薄いままにして、
+ * 「文字の後ろだけ暗い」不自然さが出ないよう、傾き 105deg で連続的につないでいる。 */
+.p-member__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(105deg,
+    rgba(8, 9, 10, 0.55) 0%,
+    rgba(8, 9, 10, 0.15) 32%,
+    rgba(8, 9, 10, 0.62) 62%,
+    rgba(8, 9, 10, 0.74) 100%);
+}
+
+.p-member__inner {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.p-member__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  letter-spacing: 0.3em;       /* 英字の見出しは字間を大きく開けて標本ラベルらしくする */
+  text-transform: uppercase;
+}
+
+.p-member__body {
+  /* 11〜13px の小さい文字は Noto Sans JP に逃がす。
+   * New Tegomin は線が細く不均一で、黒地の小さい文字では形が潰れるため
+   * （実測で判断。定義と理由は foundation/variables.css の --font-ui）。 */
+  font-family: var(--font-ui);
+  display: grid;
+  gap: var(--space-6);
+  max-width: 34em;
+  font-size: var(--fs-sm);
+  line-height: 2.1;
+  color: var(--color-text-weak);
+}
+
+/* 大きな "SENSUAL"。
+ * ワイヤーでは画面下部中央に置かれている。
+ * 意味を持つ見出しではなくキーワードの提示なので、
+ * 見出しタグは使わず p で置き、文字サイズだけで存在感を出す。 */
+.p-member__keyword {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 1rem + 6vw, 5rem);
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  color: var(--color-paper);
+  text-align: center;
+}
+
+/* 画面の四隅に散らす小さな符号。
+ * 「研究機関らしさ」の演出。情報量は持たないが、
+ * 画面に座標や観測ラベルのような気配を残すための要素。
+ * aria-hidden を付ける前提なので、読み上げでは無視される。 */
+.p-member__marks {
+  display: none;               /* モバイルでは表示しない。
+                                * 小さい画面で符号まで出すと情報が渋滞するため */
+}
+
+@media (min-width: 1024px) {
+  .p-member__inner {
+    grid-template-columns: 1fr minmax(0, 26rem);
+    align-items: start;
+    gap: var(--space-16);
+  }
+
+  .p-member__head {
+    grid-column: 2;
+  }
+
+  .p-member__keyword {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin-top: var(--space-16);
+  }
+
+  .p-member__marks {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .p-member__mark {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(239, 239, 233, 0.5);
+  }
+
+  /* 位置は % 指定。
+   * px で置くと画面幅が変わったときに画像の構図とずれるため、
+   * 常に同じ相対位置に留まる % を使う。 */
+  .p-member__mark--tl { top: 8%;  left: 6%; }
+  .p-member__mark--bl { bottom: 12%; left: 6%; }
+  .p-member__mark--tr { top: 14%; right: 8%; }
+  .p-member__mark--br { bottom: 10%; right: 8%; }
+}
+
+/* --------------------------------------------------------------------------
+ * ムービー
+ * 掲載必須項目の「ムービー」にあたるブロック。
+ * ワイヤーには枠が描かれていないため、ルックの直後に追加した。
+ * 【追加の理由】静止画のルックを見たあとに動きを見せる流れが自然で、
+ * かつ Exhibition（会場で見る体験）への橋渡しになるため。
+ * 実装は「ポスター画像＋再生ボタン」。動画ファイルを初期表示で読み込まないのは、
+ * 数MBの動画が LCP と通信量を大きく悪化させるため。
+ * 再生ボタンを押したときに初めて iframe / video を差し込む（JS: ui.js）。
+ * ------------------------------------------------------------------------ */
+.p-collection__movie {
+  margin-top: var(--space-section);
+}
+
+.p-movie {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--surface-0);
+}
+
+.p-movie__poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 再生ボタン。
+ * button 要素を使うのは、キーボードの Enter / Space で起動でき、
+ * 支援技術にも「ボタン」として伝わるため（div + onclick では伝わらない）。 */
+.p-movie__play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: var(--space-4);
+  justify-items: center;
+  color: var(--color-paper);
+  /* ポスター画像の上に白文字を置くための減光。
+   * ポスターが黒地版になり下地が十分暗くなったため 0.40 まで戻した。
+   * 【明るい実写ポスターに差し替えるときの注意】
+   * 下地が明るいと文字が読めなくなる。真っ白（明度 255）でも AA を満たすには
+   * 0.68 必要（255 × 0.32 ≒ 82 → #f4f2eb と約 6.5:1）。
+   * 明るい素材に差し替えたら、この値を 0.68 に戻してください。 */
+  background-color: rgba(8, 9, 10, 0.40);
+  transition: background-color var(--dur-base) var(--ease);
+}
+
+.p-movie__play:hover,
+.p-movie__play:focus-visible {
+  background-color: rgba(8, 9, 10, 0.55);
+}
+
+/* ボタンの丸。
+ * 44px を大きく超える 76px にしているのは、
+ * 主要な操作であり、かつ大きな面の中心に置かれるため
+ * 小さいと視覚的に埋もれてしまうから。 */
+.p-movie__playIcon {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  transition: transform var(--dur-base) var(--ease);
+}
+
+.p-movie__play:hover .p-movie__playIcon,
+.p-movie__play:focus-visible .p-movie__playIcon {
+  transform: scale(1.06);
+}
+
+.p-movie__playLabel {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+/* 再生後に差し込まれる iframe を受ける枠 */
+.p-movie__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}

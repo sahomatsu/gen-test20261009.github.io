@@ -1,0 +1,86 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Object / Project / journal.css  →  .p-journal
+ * ----------------------------------------------------------------------------
+ * 制作背景（Behind log）とニュース（INFORMATION）。
+ * ワイヤーでは「画像＋一覧」「一覧＋画像」と左右が入れ替わる構成。
+ * 同じ形を2回繰り返すより視線が動き、読み飛ばされにくくなるため踏襲した。
+ * ========================================================================== */
+
+/* セクションの発光位置。
+ * グラデーションの定義そのものは Layout 層（main.css の .l-section::before）にあり、
+ * ここでは位置だけを変数で渡している。
+ * 理由：Exhibition と反転。記事の並ぶ左側は暗く保つ。
+ * 値を変えるだけで光の当たり方を調整でき、グラデーションを書き写す必要がない。 */
+.p-journal {
+  --glow-x: 78%;
+  --glow-y: 66%;
+  --glow-x2: 26%;
+  --glow-y2: 28%;
+}
+
+.p-journal__block {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.p-journal__block + .p-journal__block {
+  margin-top: var(--space-section);
+}
+
+.p-journal__blockHead {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: center;
+  text-align: center;
+}
+
+.p-journal__body {
+  display: grid;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+/* 768px 以上で画像と一覧を横並びに。
+ * grid-template-areas を使う理由：
+ * 左右の入れ替えを order や direction で行うとDOM順と見た目がずれ、
+ * キーボード操作の移動順が視覚順と食い違ってしまう。
+ * areas なら見た目だけを入れ替えられる……が、それでも順序は変わるため、
+ * HTML側も「画像→一覧」の自然な読み順で書いたうえで、
+ * 入れ替えは areas の割り当てだけに留めている。 */
+@media (min-width: 768px) {
+  .p-journal__body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: var(--space-12);
+  }
+
+  /* 2ブロック目は画像を右に回す。
+   * direction ではなく grid-column の指定で入れ替えることで、
+   * 文字の書字方向に影響を与えない。 */
+  .p-journal__block--reverse .p-journal__figure {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .p-journal__block--reverse .p-journal__list {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+
+.p-journal__figure {
+  width: 100%;
+}
+
+.p-journal__list {
+  width: 100%;
+}
+
+/* もっと見る導線。
+ * 記事詳細ページは今回のLPの範囲外のため、
+ * リンク先は # にしてコメントで明示している（後日ブログへ差し替え）。 */
+.p-journal__more {
+  margin-top: var(--space-8);
+  display: flex;
+  justify-content: flex-end;
+}

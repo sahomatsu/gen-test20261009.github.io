@@ -1,0 +1,140 @@
+@charset "UTF-8";
+/* ============================================================================
+ * Layout / footer.css  →  .l-footer
+ * ----------------------------------------------------------------------------
+ * ワイヤーどおり、Heroと同じ墨のビジュアルでページを閉じる。
+ * 始まりと終わりに同じ素材を置くのは、1ページのLPに「額縁」を与えて
+ * スクロールの終わりを体感的に伝えるため。
+ * ========================================================================== */
+
+.l-footer {
+  position: relative;
+  overflow: hidden;            /* 墨ビジュアルを拡大配置するため、はみ出しを切る */
+  padding-block: clamp(5rem, 3rem + 12vw, 12rem) var(--space-12);
+  isolation: isolate;          /* 内部の重なり順（z-index）を外に漏らさないための宣言。
+                                * 新しい重なりコンテキストを作り、
+                                * フッター内の装飾がヘッダーより前に出る事故を防ぐ */
+}
+
+/* 背景の墨。
+ * img 要素ではなく装飾なので aria-hidden を付けた div に背景画像として置く。
+ * 「意味を持たない画像は代替テキストの対象にしない」というアクセシビリティの原則に従う。 */
+.l-footer__ink {
+  position: absolute;
+  inset: 0;
+  z-index: -1;                 /* isolation:isolate があるので、
+                                * 負の値でもフッター内に閉じて背面に回る */
+  background-image: url("../../img/ink-footer.webp");
+  background-size: cover;
+  background-position: 50% 30%;
+  /* 墨の画像自体が黒地版（暗い水の中で光る墨）になったため、
+   * 以前入れていた大きな減光は不要になった。
+   * ここでは彩度だけをわずかに上げ、墨の緑みを残している。
+   * 【明るさを 0.9 に留めている理由】
+   * 画像の最も明るい部分は明度 190 前後。等倍で出すと
+   * 上に乗る補助テキスト（#a8ada7）とのコントラストが 4.5:1 を割るため、
+   * わずかに沈めて AA を確保している。 */
+  filter: brightness(0.9) saturate(1.15);
+}
+
+/* 文字が乗る下半分を沈めるための層。
+ * 【なぜ墨全体を暗くしないのか】
+ * 画像ぜんたいの明るさを落とすと、文字の無い上半分の墨まで沈んで
+ * 「ただの暗い面」になってしまう。
+ * 文字があるのは下半分だけなので、そこだけをグラデーションで沈め、
+ * 上半分は墨が見えるまま残している。
+ * 【濃度の根拠】墨の最も明るい部分は明度 171 前後。
+ * 補助テキスト（#a8ada7）で 4.5:1 を満たすには背景を明度 61 以下にする必要があり、
+ * 171 × (1 − 0.78) ≒ 38 となる 0.78 を下端の濃度にしている。 */
+.l-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* z-index は 0。墨（-1）より前、本文（.l-footer__inner）より後ろに入る。
+   * ここを -1 にすると、同じ階層のうち DOM 順で後から来る墨のほうが
+   * 前面に描かれてしまい、減光がまったく効かない。 */
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(8, 9, 10, 0.88) 0%,
+    rgba(8, 9, 10, 0.78) 42%,
+    rgba(8, 9, 10, 0.30) 72%,
+    rgba(8, 9, 10, 0) 100%
+  );
+}
+
+.l-footer__inner {
+  position: relative;
+  display: grid;
+  gap: var(--space-12);
+}
+
+/* フッターのカウンター。
+ * Heroと同じ表示を置くことで、閉じ際にもう一度「会期までの残り」を示す。 */
+.l-footer__counter {
+  /* 数値ルール1：等幅数字（定義と理由は component/numeric.css） */
+  font-variant-numeric: tabular-nums slashed-zero;
+  /* Hero と同じくドット書体。サイズも同じ考え方で2段階に切っている */
+  font-family: var(--font-dot);
+  /* Hero と同じ寸法。16px グリッドのドット書体なので16の倍数から選ぶ */
+  font-size: 2rem;
+  letter-spacing: 0.1em;
+  color: var(--color-text-weak);
+  line-height: 1;
+}
+
+@media (min-width: 768px) {
+  .l-footer__counter {
+    font-size: 3rem;
+  }
+}
+
+/* フッターナビ。
+ * ヘッダーと違い横並びにしているのは、ページ下部では水平ラインが
+ * 「終わり」を示す区切りとして機能するため。
+ * flex-wrap を効かせて、狭い画面では自然に折り返させる。 */
+.l-footer__nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-8);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--ls-wide);
+}
+
+.l-footer__nav a {
+  display: inline-block;
+  padding: 0.5rem 0;           /* 高さ方向のタップ領域を確保 */
+  color: var(--color-text-weak);
+}
+
+.l-footer__nav a:hover,
+.l-footer__nav a:focus-visible {
+  color: var(--color-text);
+}
+
+/* 著作権表記。
+ * font-size を最小の 11px にしているのは情報の優先度が最も低いため。
+ * ただし色は --color-text-weak（黒地で4.5:1以上）を使い、
+ * 小さくても読めるコントラストは維持する。 */
+.l-footer__copyright {
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.1em;
+  color: var(--color-text-weak);
+}
+
+/* 768px 以上ではカウンターとナビを左右に振り分ける。
+ * 情報量が少ないフッターなので、縦に積むと間延びするため。 */
+@media (min-width: 768px) {
+  .l-footer__inner {
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: var(--space-16) var(--space-8);
+  }
+
+  .l-footer__copyright {
+    grid-column: 1 / -1;       /* 著作権表記だけは2カラムをまたいで最下段に置く */
+  }
+}
