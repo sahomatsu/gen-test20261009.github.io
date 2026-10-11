@@ -39,7 +39,7 @@
 
 .p-designer__name {
   font-family: var(--font-display);
-  font-size: var(--fs-lg);
+  font-size: var(--fs-xl);
   letter-spacing: 0.04em;
   line-height: 1.3;
 }
